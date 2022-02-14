@@ -21,5 +21,9 @@ void right3G(pros::vision_signature_s_t* yellowMogo, double yellowMogoID, pros::
     // lift the front mogo up to stop it from interacting with the rings
     pros::Task lambda3{[=] { moveLift(3000, 1, 0.000001, 0, 10000); }};
     // go back
-    backwardJPIDbackDistance(850, 1500, 0, 0.5, 0.22, 0, 0, 5000);
+    backwardJPIDbackDistance(1175, 1500, 0, 0.5, 0.22, 0, 0, 5000);
+
+    turnJPID(108, 0.1, 0.9, 0, 0, 5000);
+
+    backwardJPIDbackDistance(36, 0, 0, 0.5, 0.22, 0, 0, 0);
 }
