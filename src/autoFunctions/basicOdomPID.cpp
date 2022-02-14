@@ -80,8 +80,8 @@ void forwardJPIDTrack(double goalX, double goalY, double kJ, double kP, double k
 // forward PID using front distance sensor
 void forwardJPIDfrontDistance(double goal, double expectedDistance, double clampOffset, double kJ, double kP, double kI, double kD, double maxTime) 
 {
-    double error = goal - frontDistance.get(); // calculate the error
-    double prevError = error; // the value of error at last cycle
+    double error = 0; // calculate the error
+    double prevError = expectedDistance; // the value of error at last cycle
     double derivative = error - prevError; // the change in error since last cycle
     double totalError = 0; // the total error since the start of the function
     double motorPower = 0; // the power to be sent to the drivetrain
@@ -92,9 +92,13 @@ void forwardJPIDfrontDistance(double goal, double expectedDistance, double clamp
 
         // calculate stuff
         if (time < clampOffset) {
-            error = expectedDistance;
+            error = -expectedDistance;
         } else {
-            error = goal - frontDistance.get(); // calculate error
+            if (frontDistance.get() < 5) {
+                error = prevError;
+            } else {
+                error = goal - frontDistance.get(); // calculate error
+            }
         }
 
         derivative = error - prevError; // calculate derivative
@@ -109,14 +113,16 @@ void forwardJPIDfrontDistance(double goal, double expectedDistance, double clamp
         }
 
         // slew
-        if (motorPower - prevMotorPower > slew) {
-            motorPower = prevMotorPower + slew;
+        if (motorPower - prevMotorPower < -slew) {
+            motorPower = prevMotorPower - slew;
         }
         prevMotorPower = motorPower;
 
         // spin the motors
-        moveLeftDrivetrain(motorPower);
-        moveRightDrivetrain(motorPower);
+        moveLeftDrivetrain(-motorPower);
+        moveRightDrivetrain(-motorPower);
+
+        printf("error: %f \r\n", error);
         
         pros::delay(10);
     }

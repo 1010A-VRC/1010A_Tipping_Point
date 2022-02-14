@@ -16,6 +16,7 @@
 #include "autoFunctions/odometry.hpp"
 #include "opcontrol.hpp"
 #include "autoFunctions/basicOdomPID.hpp"
+#include "autoFunctions/subsystems.hpp"
 #include "autos.hpp"
 
 
@@ -104,12 +105,8 @@ void competition_initialize ()
  */
 void autonomous () 
 {
-	/*// do flipout
-	pros::Task lambdaTask1{[=]{ conveyor.tare_position(); conveyor.move_absolute(90, 600); }};
-	// deactivate front clamp
-	pros::Task lambdaTask2{[=]{ frontClamp.set_value(true); }}; */
+	right3G(&front_red_mogo_alderfeild, 1, &front_red_mogo_alderfeild, 1);
 	
-
 }
 
 /**
