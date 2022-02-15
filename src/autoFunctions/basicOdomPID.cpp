@@ -226,7 +226,7 @@ void backwardJPIDTrack(double goalX, double goalY, double kJ, double kP, double 
 // backward odom PID
 void backwardJPIDbackDistance(double goal, double expectedDistance, double clampOffset, double kJ, double kP, double kI, double kD, double maxTime) 
 {    
-    double error = goal - backDistance.get(); // calculate the error
+    double error = goal - backDistance.get(); // calculate the error // 30 - 1100
     double prevError = error; // the value of error at last cycle
     double derivative = error - prevError; // the change in error since last cycle
     double totalError = 0; // the total error since the start of the function
@@ -238,7 +238,7 @@ void backwardJPIDbackDistance(double goal, double expectedDistance, double clamp
 
         // calculate stuff
         if (time < clampOffset) {
-            error = expectedDistance;
+            error = -expectedDistance;
         } else {
             error = goal - backDistance.get(); // calculate error
         }
@@ -252,6 +252,46 @@ void backwardJPIDbackDistance(double goal, double expectedDistance, double clamp
         if (fabs(error) < 10) {
             break;
         }
+
+        // slew
+        if (motorPower - prevMotorPower < -slew) {
+            motorPower = prevMotorPower - slew;
+        }
+        prevMotorPower = motorPower;
+
+        moveLeftDrivetrain(motorPower);
+        moveRightDrivetrain(motorPower);
+        
+        pros::delay(10);
+    }
+    stopDrivetrain();
+}
+
+
+// backward odom PID
+void backwardJPIDbackDistance2(double goal, double expectedDistance, double clampOffset, double kJ, double kP, double kI, double kD, double maxTime) 
+{    
+    double error = goal - backDistance.get(); // calculate the error // 30 - 1100
+    double prevError = error; // the value of error at last cycle
+    double derivative = error - prevError; // the change in error since last cycle
+    double totalError = 0; // the total error since the start of the function
+    double motorPower = 0; // the power to be sent to the drivetrain
+    double prevMotorPower = 0; // the value of motorPower at last cycle
+    double slew = kJ; // the maximum change in velocity
+
+    for (int time = 0; time < maxTime; time+=10) {
+
+        // calculate stuff
+        if (time < clampOffset) {
+            error = -expectedDistance;
+        } else {
+            error = goal - backDistance.get(); // calculate error
+        }
+        derivative = error - prevError; // calculate derivative
+        prevError = error; // update prevError
+        totalError += error; // calculate error
+        slew += kJ;
+        motorPower = error * kP + totalError * kI + derivative * kD; // calculate motor power
 
         // slew
         if (motorPower - prevMotorPower < -slew) {
@@ -324,7 +364,6 @@ void turnJPID(double goal, double kJ, double kP, double kI, double kD, double ma
         // spin the motors
         moveLeftDrivetrain(motorPower);
         moveRightDrivetrain(-motorPower);
-        printf("%f", motorPower);
         
         pros::delay(10);
     }
@@ -453,4 +492,65 @@ void back_vision_align(int sigID, pros::vision_signature_s_t* sig, double turnKP
 
         pros::delay(10);
     }
+}
+
+
+
+// function that returns data, such as location and angle of an object tracked by a vision sensor
+signature visual_odometry(pros::vision_signature_s_t* trackedObject, double trackedObjectID, double trackedObjectWidth)
+{
+    // set the tracked object 
+    frontVision.set_signature(trackedObjectID, trackedObject);
+    // get info from the tracked objects
+    pros::vision_object_s_t trackedSig = backVision.get_by_sig(0, trackedObjectID);
+
+    // get the width of the tracked object
+    double width = trackedSig.width;
+    // get inches by pixel
+    double ipp = trackedObjectWidth/width;
+    // get the chord length 
+    double chordLength = ipp*316;
+
+    // divide the isosceles triangle into 2 right angle triangles, then find the adjacent
+    double deltaY = chordLength/tan(30.5*(M_PI/180));
+}
+
+
+
+// basic forward JIPD functions
+void basicForwardJPID(double goal, double kJ, double kP, double kI, double kD, double maxTime) 
+{
+    // variables 
+    double startPos = sideTrackingWheel.get_value()*((M_PI*2.75)/360);
+    double error = goal - sideTrackingWheel.get_value()*((M_PI*2.75)/360) - startPos;
+    double prevError = error;
+    double derivative = error - prevError;
+    double totalError = 0;
+    double slew = kJ;
+    double motorPower = error * kP + totalError * kI + derivative * kD;
+    double prevMotorPower = 0;
+
+    for (int i = 0; i < maxTime; i+=10) {
+
+        error = goal - sideTrackingWheel.get_value()*((M_PI*2.75)/360) - startPos;
+        derivative = error - prevError;
+        prevError = error;
+        totalError += error;
+        slew += kJ;
+        motorPower = error*kP + totalError*kI + derivative*kD;
+
+        if (motorPower - prevMotorPower > slew) {
+            motorPower = prevMotorPower + slew;
+        }
+
+        if (error < 0.5) {
+            break;
+        }
+
+        moveLeftDrivetrain(motorPower); 
+        moveRightDrivetrain(motorPower);
+
+        pros::delay(10);
+    }
+    stopDrivetrain();
 }
