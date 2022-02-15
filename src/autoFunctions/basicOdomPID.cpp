@@ -521,8 +521,8 @@ signature visual_odometry(pros::vision_signature_s_t* trackedObject, double trac
 void basicForwardJPID(double goal, double kJ, double kP, double kI, double kD, double maxTime) 
 {
     // variables 
-    double startPos = sideTrackingWheel.get_value()*((M_PI*2.75)/360);
-    double error = goal - sideTrackingWheel.get_value()*((M_PI*2.75)/360) - startPos;
+    double startPos = sideTrackingWheel.get_value();
+    double error = goal - sideTrackingWheel.get_value() - startPos;
     double prevError = error;
     double derivative = error - prevError;
     double totalError = 0;
@@ -532,18 +532,18 @@ void basicForwardJPID(double goal, double kJ, double kP, double kI, double kD, d
 
     for (int i = 0; i < maxTime; i+=10) {
 
-        error = goal - sideTrackingWheel.get_value()*((M_PI*2.75)/360) - startPos;
+        error = goal - sideTrackingWheel.get_value() - startPos;
         derivative = error - prevError;
         prevError = error;
         totalError += error;
         slew += kJ;
-        motorPower = error*kP + totalError*kI + derivative*kD;
+        motorPower = error*kP;
 
-        if (motorPower - prevMotorPower > slew) {
+        /*if (motorPower - prevMotorPower > slew) {
             motorPower = prevMotorPower + slew;
-        }
+        } */
 
-        if (error < 0.5) {
+        if (fabs(error) < 0.5) {
             break;
         }
 

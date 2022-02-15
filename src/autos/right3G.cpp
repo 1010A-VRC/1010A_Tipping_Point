@@ -23,28 +23,11 @@ void right3G(pros::vision_signature_s_t* yellowMogo, double yellowMogoID, pros::
     // align with middle mogo
     turnJPID(127, 0.1, 0.91, 0, 0, 1500);
     // go back and clamp the middle mogo
-    backwardJPIDbackDistance(-125, 0, 0, 0.1, 0.11, 0.00004, 0, 2500);
+    backwardJPIDbackDistance(-125, 0, 0, 0.1, 0.12, 0.00006, 0, 2500);
     backClamp.set_value(true);
 
     // go forward a little bit
-    basicForwardJPID(15, 100, 4, 0, 0, 1500);
-    // correct heading
-    turnJPID(255, 0.1, 0.9, 0, 0, 1500);
-    // go forward more to drop off the mogos
-    basicForwardJPID(40, 100, 3, 0, 0, 2500);
-    // drop off the mogos
-    frontClamp.set_value(true);
-    backClamp.set_value(false);
-
-    // flip out the ring guide in a lambda task
-    pros::Task lambdaTask3{[=] { conveyor.tare_position(); conveyor.move_absolute(90, 600); }};
-    // turn to face the back mogo
-    turnJPID(220, 0.1, 1.2, 0, 0, 1500);
-    // go backwards
-    backwardJPIDbackDistance(-125, 0, 0, 0.1, 0.11, 0.0001, 0, 2500);
-    // clamp the back mogo
-    backClamp.set_value(true);
-    // spin the conveyor to score the preloads
-    conveyor.move(600);
+    basicForwardJPID(360, 0.1, 1, 0, 0, 1500);
+    
 
 }

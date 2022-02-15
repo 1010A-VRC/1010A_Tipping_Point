@@ -98,6 +98,10 @@ void user_control::drivetrain_control() {
         leftPower = forwardPower + turnPower; /** calculate left motor power   */
         rightPower = forwardPower - turnPower; /** calculate right motor power */
 
+        // decide whether to engage hold mode
+        if (leftPower==0 && rightPower==0 && prevLeftPower==0 && prevRightPower==0) {
+        }
+
         /** spin the motors                     */
         l1.move(leftPower); /**< left 1 motor   */
         l2.move(leftPower); /**< left 2 motor   */

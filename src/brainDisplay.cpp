@@ -42,7 +42,7 @@ void brain_screen::legacy_brain_display()
 
     while (true) {
 
-        pros::lcd::print(0, "X: %f", odom.get_x());
+        //pros::lcd::print(0, "X: %f", odom.get_x());
         pros::lcd::print(1, "Y: %f", odom.get_y());
         pros::lcd::print(2, "H: %f", odom.get_heading(false));
         pros::lcd::print(3, "Left side Temperature: %f", brain_screen::average_temperature(&l1, &l2, &l3)); /**< print the left drivetrain motor temperatures   */

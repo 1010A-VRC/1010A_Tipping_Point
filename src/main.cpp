@@ -106,7 +106,7 @@ void competition_initialize ()
 void autonomous () 
 {
 	right3G(&front_red_mogo_alderfeild, 1, &front_red_mogo_alderfeild, 1);
-	
+
 }
 
 /**
@@ -133,6 +133,5 @@ void opcontrol ()
 	pros::Task frontClampControl(user_control::front_clamp_control); /**< task controlling the front clamp 						*/
 	pros::Task backClampControl(user_control::back_clamp_control); /**< task controlling the back clamp							*/
 	pros::Task conveyorControl(user_control::conveyor_control); /**< task controlling the conveyor 								*/
-
-
+	
 }
