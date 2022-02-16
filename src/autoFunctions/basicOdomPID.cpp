@@ -502,6 +502,44 @@ void forwardVisionTracking(int sigID, pros::vision_signature_s_t* sig, double tu
 
 
 
+// vision tracking functions
+void backVisionTracking(int sigID, pros::vision_signature_s_t* sig, double turnKP, double timeout) 
+{
+    // set the signature ID and signature object
+    backVision.set_signature(sigID, sig);
+
+    // set the zero point for the front vision sensor
+    backVision.set_zero_point(pros::E_VISION_ZERO_CENTER);
+
+    // initialize variables for turn PID
+    double error = 0;
+    double motorPower = 0;
+
+    double startTime = pros::millis();
+
+    while (true) {
+        pros::vision_object_s_t trackedSig = backVision.get_by_sig(0, sigID);
+        
+        // if the distance sensor senses the mogo
+        error = 15 - trackedSig.x_middle_coord;
+
+        if (pros::millis() - startTime > timeout) {
+            break;
+        }
+        
+        motorPower = error * turnKP;
+
+        moveLeftDrivetrain(-motorPower);
+        moveRightDrivetrain(motorPower);
+
+        pros::delay(10);
+    }
+    stopDrivetrain();
+    pros::lcd::print(7, "error: %f", error);
+}
+
+
+
 // back vision aligning function 
 void back_vision_align(int sigID, pros::vision_signature_s_t* sig, double turnKP, double turnKI, double turnKD, double maxTime) 
 {

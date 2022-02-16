@@ -152,9 +152,9 @@ void user_control::drivetrain_control() {
 
 void user_control::driveToggle() {
     while (true) {
-        if (partnerController.get_digital(E_CONTROLLER_DIGITAL_R2)) {
+        if (partnerController.get_digital(E_CONTROLLER_DIGITAL_DOWN)) {
             normalDrivetrain = !normalDrivetrain;
-            while (partnerController.get_digital(E_CONTROLLER_DIGITAL_R2)) {
+            while (partnerController.get_digital(E_CONTROLLER_DIGITAL_DOWN)) {
                 pros::delay(10);
             }
         }
@@ -303,7 +303,7 @@ void user_control::conveyor_control()
     while (true) {
 
         /** if controller button B was pressed, toggle the conveyor */
-        if (partner->get_digital(E_CONTROLLER_DIGITAL_B)) {
+        if (partner->get_digital(E_CONTROLLER_DIGITAL_A)) {
 
             /** if the conveyor is not spinning forwards, spin it forwards */
             if (conveyor.get_voltage() <= 0) {
@@ -317,13 +317,13 @@ void user_control::conveyor_control()
             }
 
             /** while button b is pressed, halt the function so the conveyor does not spasm */
-            while (partner->get_digital(E_CONTROLLER_DIGITAL_B)) {
+            while (partner->get_digital(E_CONTROLLER_DIGITAL_A)) {
                 delay(10);
             }
 
 
         /** else if button X was pressed, toggle the conveyor */
-        } else if (partner->get_digital(E_CONTROLLER_DIGITAL_A)) {
+        } else if (partner->get_digital(E_CONTROLLER_DIGITAL_B)) {
 
             /** if the conveyor is not spinning backwards, spin it backwards */
             if (conveyor.get_voltage() >= 0) {
@@ -337,7 +337,7 @@ void user_control::conveyor_control()
             }
 
             /** while button X is pressed, halt the function so the conveyor does not spasm */
-            while (partner->get_digital(E_CONTROLLER_DIGITAL_A)) {
+            while (partner->get_digital(E_CONTROLLER_DIGITAL_B)) {
                 delay(10);
             }
         }

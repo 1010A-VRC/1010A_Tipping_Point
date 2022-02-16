@@ -53,7 +53,7 @@ pros::IMU imu1 (11);
 pros::IMU imu2 (12);
 pros::Vision frontVision (1);
 pros::Distance frontDistance (6);
-pros::Vision backVision (15);
+pros::Vision backVision (8);
 pros::Distance backDistance (19);
 pros::Rotation frontLiftRotation (4); 
 
