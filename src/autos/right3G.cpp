@@ -44,4 +44,5 @@ void right3G(pros::vision_signature_s_t* yellowMogo, double yellowMogoID, pros::
     backClamp.set_value(true);
     // score the preloads
     conveyor.move(600);
+
 }

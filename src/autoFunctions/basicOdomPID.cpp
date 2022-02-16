@@ -465,7 +465,7 @@ int yInterpolator(double xValue) {
 
 
 // vision tracking functions
-void forwardVisionTracking(int sigID, pros::vision_signature_s_t* sig, double turnKP) 
+void forwardVisionTracking(int sigID, pros::vision_signature_s_t* sig, double turnKP, double timeout) 
 {
     // set the signature ID and signature object
     frontVision.set_signature(sigID, sig);
@@ -477,25 +477,27 @@ void forwardVisionTracking(int sigID, pros::vision_signature_s_t* sig, double tu
     double error = 0;
     double motorPower = 0;
 
+    double startTime = pros::millis();
+
     while (true) {
         pros::vision_object_s_t trackedSig = frontVision.get_by_sig(0, sigID);
         
         // if the distance sensor senses the mogo
-        if (frontDistance.get() < 1500) {
-            error = yInterpolator(frontDistance.get()) - trackedSig.x_middle_coord;
-        } else {
-            error = 10 - trackedSig.x_middle_coord;
+        error = 15 - trackedSig.x_middle_coord;
+
+        if (pros::millis() - startTime > timeout) {
+            break;
         }
         
-        printf("error: %f", error);
         motorPower = error * turnKP;
 
-        moveLeftDrivetrain(-motorPower + 20);
-        moveRightDrivetrain(motorPower + 20);
-
+        moveLeftDrivetrain(-motorPower);
+        moveRightDrivetrain(motorPower);
 
         pros::delay(10);
     }
+    stopDrivetrain();
+    pros::lcd::print(7, "error: %f", error);
 }
 
 
