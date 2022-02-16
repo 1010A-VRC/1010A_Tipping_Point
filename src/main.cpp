@@ -105,7 +105,8 @@ void competition_initialize ()
  */
 void autonomous () 
 {
-	right3G(&front_red_mogo_alderfeild, 1, &front_red_mogo_alderfeild, 1);
+	//right3G(&front_red_mogo_alderfeild, 1, &front_red_mogo_alderfeild, 1);
+	left2G();
 
 }
 

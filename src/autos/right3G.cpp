@@ -37,12 +37,11 @@ void right3G(pros::vision_signature_s_t* yellowMogo, double yellowMogoID, pros::
     basicForwardJPID(50, 3, 6, 0, 0, 1500);
 
     // turn to face the alliance mogo while flipping out the ring guide
-    pros::Task lambdaTask5{[=] { conveyor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD); conveyor.move(-600); pros::delay(100); conveyor.move(0); pros::delay(100); }};
+    pros::Task lambdaTask5{[=] { conveyor.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE); conveyor.move(-600); pros::delay(100); conveyor.move(0); pros::delay(100); }};
     turnJPID2(223, 0.1, 1.2, 0, 0, 1500);
     // clamp the alliance mogo
     backwardJPIDbackDistance(-125, 0, 0, 0.1, 0.2, 0.00006, 0, 1500);
+    backClamp.set_value(true);
     // score the preloads
     conveyor.move(600);
-    
-
 }
