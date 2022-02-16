@@ -50,6 +50,8 @@ void user_control::drivetrain_control() {
 
     bool aToggle = false;
 
+    FILE* file = fopen("/usd/control.txt", "r");
+
     /** main loop */
     while (true) {
         while (normalDrivetrain) {
@@ -112,6 +114,10 @@ void user_control::drivetrain_control() {
         r2.move(rightPower); /**< right 2 motor */
         r3.move(rightPower); /**< right 3 motor */
 
+        pros::lcd::print(0, "speed: %f", l1.get_actual_velocity());
+
+        //fputs("leftSpeed: %f, rightSpeed: %f, time: %d \r\n", file);
+
         /** update previous stored values */
         prevLeftPower = leftPower; /**< left side    */
         prevRightPower = rightPower; /**< right side */
@@ -142,6 +148,7 @@ void user_control::drivetrain_control() {
         pros::delay(10);
     }
 }
+
 
 void user_control::driveToggle() {
     while (true) {

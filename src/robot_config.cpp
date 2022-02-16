@@ -39,7 +39,7 @@ pros::Motor r1 (20, pros::E_MOTOR_GEARSET_18, false);
 pros::Motor r2 (16, pros::E_MOTOR_GEARSET_18, true); 
 pros::Motor r3 (21, pros::E_MOTOR_GEARSET_18, false); 
 pros::Motor lift (3, pros::E_MOTOR_GEARSET_36, false);
-pros::Motor conveyor (2, pros::E_MOTOR_GEARSET_06, true);
+pros::Motor conveyor (2, pros::E_MOTOR_GEARSET_06, false);
 
 /**
  * @brief V5 sensors
@@ -53,7 +53,7 @@ pros::IMU imu1 (11);
 pros::IMU imu2 (12);
 pros::Vision frontVision (1);
 pros::Distance frontDistance (6);
-pros::Vision backVision (18);
+pros::Vision backVision (15);
 pros::Distance backDistance (19);
 pros::Rotation frontLiftRotation (4); 
 

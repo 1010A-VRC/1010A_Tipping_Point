@@ -24,7 +24,7 @@
  * @return double 
  */
 double brain_screen::average_temperature(pros::Motor *a, pros::Motor *b, pros::Motor *c) {
-    return (a->get_power() + b->get_power() + c->get_power())/3;
+    return (a->get_temperature() + b->get_temperature() + c->get_temperature())/3;
 }
 
 

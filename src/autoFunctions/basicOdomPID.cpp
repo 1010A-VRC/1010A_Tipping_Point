@@ -88,7 +88,9 @@ void forwardJPIDfrontDistance(double goal, double expectedDistance, double clamp
     double prevMotorPower = 0; // the value of motorPower at last cycle
     double slew = kJ; // the maximum change in velocity
 
-    for (int time = 0; time < maxTime; time+=10) {
+    double totalPower = 0;
+
+    for (double time = 0; time < maxTime; time+=10) {
 
         // calculate stuff
         if (time < clampOffset) {
@@ -101,6 +103,7 @@ void forwardJPIDfrontDistance(double goal, double expectedDistance, double clamp
             }
         }
 
+        totalPower += (l1.get_actual_velocity()+l2.get_actual_velocity())/2;
         derivative = error - prevError; // calculate derivative
         prevError = error; // update prevError
         totalError += error; // calculate error
@@ -109,6 +112,8 @@ void forwardJPIDfrontDistance(double goal, double expectedDistance, double clamp
 
         // break out of the loop if necessary
         if (fabs(error) < 40) {
+            totalPower /= time/10;
+            pros::lcd::print(7, "average speed: %f", totalPower);
             break;
         }
 
@@ -372,6 +377,43 @@ void turnJPID(double goal, double kJ, double kP, double kI, double kD, double ma
 
 
 
+// PID that turns the robot
+void turnJPID2(double goal, double kJ, double kP, double kI, double kD, double maxTime) 
+{
+    double error = goal - (imu1.get_rotation() + imu2.get_rotation())/2; // calculate the error
+    double prevError = error; // the value of error at last cycle
+    double derivative = error - prevError; // the change in error since last cycle
+    double totalError = 0; // the total error since the start of the function
+    double motorPower = 0; // the power to be sent to the drivetrain
+    double prevMotorPower = 0; // the value of motorPower at last cycle
+    double slew = 0; // the maximum change in velocity
+
+    for (int time = 0; time < maxTime; time+=10) {
+
+        // calculate stuff
+        error = goal - (imu1.get_rotation() + imu2.get_rotation())/2;; // calculate error
+        derivative = error - prevError; // calculate derivative
+        prevError = error; // update prevError
+        totalError += error; // calculate error
+        slew += kJ;
+        motorPower = error * kP + totalError * kI + derivative * kD; // calculate motor power
+
+        // break out of the loop if necessary
+        if (fabs(error) < 1) {
+            break;
+        }
+
+        // spin the motors
+        moveLeftDrivetrain(motorPower);
+        moveRightDrivetrain(-motorPower);
+        
+        pros::delay(10);
+    }
+    stopDrivetrain();
+}
+
+
+
 
 
 // front vision sensor interpolator. This function interpolates the values of centerX for the front vision sensor since it is off-center from the mobile goal
@@ -521,8 +563,8 @@ signature visual_odometry(pros::vision_signature_s_t* trackedObject, double trac
 void basicForwardJPID(double goal, double kJ, double kP, double kI, double kD, double maxTime) 
 {
     // variables 
-    double startPos = sideTrackingWheel.get_value();
-    double error = goal - sideTrackingWheel.get_value() - startPos;
+    double startPos = sideTrackingWheel.get_value() * ((M_PI*2.75)/360);
+    double error = goal - sideTrackingWheel.get_value()*((M_PI*2.75)/360) + startPos;
     double prevError = error;
     double derivative = error - prevError;
     double totalError = 0;
@@ -532,18 +574,19 @@ void basicForwardJPID(double goal, double kJ, double kP, double kI, double kD, d
 
     for (int i = 0; i < maxTime; i+=10) {
 
-        error = goal - sideTrackingWheel.get_value() - startPos;
+        error = goal - sideTrackingWheel.get_value()*((M_PI*2.75)/360) + startPos;
         derivative = error - prevError;
-        prevError = error;
         totalError += error;
         slew += kJ;
-        motorPower = error*kP;
+        motorPower = error*kP + totalError*kI + derivative * kD;
 
-        /*if (motorPower - prevMotorPower > slew) {
+        if (motorPower - prevMotorPower > slew) {
             motorPower = prevMotorPower + slew;
-        } */
+        }
+        prevError = error;
 
-        if (fabs(error) < 0.5) {
+
+        if (fabs(error) < 0.1) {
             break;
         }
 

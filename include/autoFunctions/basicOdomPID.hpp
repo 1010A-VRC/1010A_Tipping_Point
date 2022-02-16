@@ -24,4 +24,5 @@ void forwardVisionTracking(int sigID, pros::vision_signature_s_t* sig, double tu
 void back_vision_align(int sigID, pros::vision_signature_s_t* sig, double turnKP, double turnKI, double turnKD, double maxTime);
 void basicForwardJPID(double goal, double kJ, double kP, double kI, double kD, double maxTime);
 void backwardJPIDbackDistance2(double goal, double expectedDistance, double clampOffset, double kJ, double kP, double kI, double kD, double maxTime);
+void turnJPID2(double goal, double kJ, double kP, double kI, double kD, double maxTime);
 

@@ -44,12 +44,12 @@ void initialize ()
 	odom.start_tracking(); /**< initialize odometry */
 
 	/** set all drivetrain motors to hold, in order to make accurate turns and not to slide off the ramp */
-	l1.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-	l2.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-	l3.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-	r1.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-	r2.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-	r3.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+	//l1.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+	//l2.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+	//l3.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+	//r1.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+	//r2.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+	//r3.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
 
 	/** create a task for the brain screen display */
 	pros::Task brainDisplay(brain_screen::legacy_brain_display);
