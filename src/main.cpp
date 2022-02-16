@@ -133,5 +133,6 @@ void opcontrol ()
 	pros::Task frontClampControl(user_control::front_clamp_control); /**< task controlling the front clamp 						*/
 	pros::Task backClampControl(user_control::back_clamp_control); /**< task controlling the back clamp							*/
 	pros::Task conveyorControl(user_control::conveyor_control); /**< task controlling the conveyor 								*/
+	pros::Task drivetoggle(user_control::driveToggle);
 	
 }

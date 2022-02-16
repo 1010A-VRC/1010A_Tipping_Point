@@ -32,7 +32,7 @@ pros::Controller partnerController(pros::E_CONTROLLER_PARTNER);
  * 1 motor is used for a conveyor
  * 
  */
-pros::Motor l1 (17, pros::E_MOTOR_GEARSET_18, true); 
+pros::Motor l1 (18, pros::E_MOTOR_GEARSET_18, true); 
 pros::Motor l2 (14, pros::E_MOTOR_GEARSET_18, false); 
 pros::Motor l3 (13, pros::E_MOTOR_GEARSET_18, true);  
 pros::Motor r1 (20, pros::E_MOTOR_GEARSET_18, false); 

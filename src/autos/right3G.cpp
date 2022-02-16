@@ -12,7 +12,7 @@ void right3G(pros::vision_signature_s_t* yellowMogo, double yellowMogoID, pros::
     // deactivate the front clamp
     pros::Task lambdaTask1{[=] { frontClamp.set_value(true); }};
     // go forward 
-    forwardJPIDfrontDistance(10, 1400, 300, 1, 0.22, 0, 0, 5000); // 0.2
+    forwardJPIDfrontDistance(10, 1400, 300, 1, 0.26, 0, 0, 5000); // 0.22
     // activate the clamp
     frontClamp.set_value(false);
 

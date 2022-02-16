@@ -21,6 +21,9 @@ using namespace pros;
  * @brief Method controlling the drivetrain
  * 
  */
+
+bool normalDrivetrain = true;
+
 void user_control::drivetrain_control() {
     
     /** variables */
@@ -45,8 +48,11 @@ void user_control::drivetrain_control() {
 
     double tempTurnAccel = 0;
 
+    bool aToggle = false;
+
     /** main loop */
     while (true) {
+        while (normalDrivetrain) {
 
         /** decide whether to run single controller or dual controller */
   	    if (partnerController.is_connected()) {
@@ -98,10 +104,6 @@ void user_control::drivetrain_control() {
         leftPower = forwardPower + turnPower; /** calculate left motor power   */
         rightPower = forwardPower - turnPower; /** calculate right motor power */
 
-        // decide whether to engage hold mode
-        if (leftPower==0 && rightPower==0 && prevLeftPower==0 && prevRightPower==0) {
-        }
-
         /** spin the motors                     */
         l1.move(leftPower); /**< left 1 motor   */
         l2.move(leftPower); /**< left 2 motor   */
@@ -118,8 +120,41 @@ void user_control::drivetrain_control() {
 
         /** delay so RTOS does not freeze */
         pros::delay(10);
+        }
+
+        while (!normalDrivetrain) {
+            double forwardPower = master.get_analog(E_CONTROLLER_ANALOG_LEFT_Y);
+            double turnPower = master.get_analog(E_CONTROLLER_ANALOG_RIGHT_X);
+
+            double leftMotorPower = forwardPower + turnPower;
+            double rightMotorPower = forwardPower - turnPower;
+
+            l1.move(leftMotorPower);
+            l2.move(leftMotorPower);
+            l3.move(leftMotorPower);
+            r1.move(rightMotorPower);
+            r2.move(rightMotorPower);
+            r3.move(rightMotorPower); 
+        
+            pros::delay(10);
+        }
+
+        pros::delay(10);
     }
 }
+
+void user_control::driveToggle() {
+    while (true) {
+        if (partnerController.get_digital(E_CONTROLLER_DIGITAL_R2)) {
+            normalDrivetrain = !normalDrivetrain;
+            while (partnerController.get_digital(E_CONTROLLER_DIGITAL_R2)) {
+                pros::delay(10);
+            }
+        }
+        pros::delay(10);
+    }
+}
+
 
 
 /**
