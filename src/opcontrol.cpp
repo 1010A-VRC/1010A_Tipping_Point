@@ -45,13 +45,9 @@ void user_control::drivetrain_control() {
     double maxDecel = 3; /**< the maximum acceleration        */
 
     double turnAccel = 50; /**< acceleration multiplier when turning */
-
     double tempTurnAccel = 0;
-
     bool aToggle = false;
-
-    FILE* file = fopen("/usd/control.txt", "r");
-
+    
     /** main loop */
     while (true) {
         while (normalDrivetrain) {
@@ -114,10 +110,6 @@ void user_control::drivetrain_control() {
         r2.move(rightPower); /**< right 2 motor */
         r3.move(rightPower); /**< right 3 motor */
 
-        pros::lcd::print(0, "speed: %f", l1.get_actual_velocity());
-
-        //fputs("leftSpeed: %f, rightSpeed: %f, time: %d \r\n", file);
-
         /** update previous stored values */
         prevLeftPower = leftPower; /**< left side    */
         prevRightPower = rightPower; /**< right side */
@@ -132,8 +124,22 @@ void user_control::drivetrain_control() {
             double forwardPower = master.get_analog(E_CONTROLLER_ANALOG_LEFT_Y);
             double turnPower = master.get_analog(E_CONTROLLER_ANALOG_RIGHT_X);
 
+            
+
             double leftMotorPower = forwardPower + turnPower;
             double rightMotorPower = forwardPower - turnPower;
+
+            if (!leftMotorPower && !rightMotorPower) {
+                leftMotorPower = (0 - (l1.get_position() + l2.get_position() + l3.get_position())/3) * 0.2;
+                rightMotorPower = (0 - (r1.get_position() + r2.get_position() + r3.get_position())/3) * 0.2;
+            } else {
+                l1.tare_position();
+                l2.tare_position();
+                l3.tare_position();
+                r1.tare_position();
+                r2.tare_position();
+                r3.tare_position();
+            }
 
             l1.move(leftMotorPower);
             l2.move(leftMotorPower);
@@ -144,7 +150,6 @@ void user_control::drivetrain_control() {
         
             pros::delay(10);
         }
-
         pros::delay(10);
     }
 }
