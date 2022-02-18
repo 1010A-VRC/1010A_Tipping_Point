@@ -176,15 +176,14 @@ void user_control::driveToggle() {
 void user_control::front_lift_stop()
 {
     /** constants for the PID */
-    double kP = 0.02;
+    double kP = 0.5;
     double kI = 0.0;
     double kD = 0.0;
 
     /** variables for the PID */
-    int goal = frontLiftRotation.get_angle() + 500; // goal
-    if (goal > E_FRONT_LIFT_MAX) {
-        goal = E_FRONT_LIFT_MAX;
-    }
+    lift.tare_position();
+    double goal = 0;
+
     double motorSpeed;      /**< speed at which to move the lift motor                                          */
     double error;           /**< distance from the lift's current position and the target position              */
     double prevError = 0;   /**< previous distance from the lift's current position and the target position     */
@@ -195,7 +194,7 @@ void user_control::front_lift_stop()
     while((!master.get_digital(E_CONTROLLER_DIGITAL_L1)&&!master.get_digital(E_CONTROLLER_DIGITAL_L2)) || (master.get_digital(E_CONTROLLER_DIGITAL_L1)&&frontLiftRotation.get_angle()>=E_FRONT_LIFT_MAX-500) || (master.get_digital(E_CONTROLLER_DIGITAL_L2)&&frontLiftRotation.get_angle()<=E_FRONT_LIFT_HOME)) {
 
         /** update variables */
-        error = goal - frontLiftRotation.get_position();        /**< error              */
+        error = goal - lift.get_position();                     /**< error              */
         totalError += error;                                    /**< total error        */
         derivative = error - prevError;                         /**< derivative         */
         prevError = error;                                      /**< previous error     */
@@ -225,7 +224,12 @@ void user_control::front_lift_control()
 
         /** else if controller button L2 is pressed, move the front lift down */
         } else if (master.get_digital(E_CONTROLLER_DIGITAL_L2) && frontLiftRotation.get_angle() >= E_FRONT_LIFT_HOME) {
-            lift.move(std::numeric_limits<std::int32_t>::min()); /**< move the front lift down at maximum power */
+            if (frontLiftRotation.get_angle() < 2000) {
+                lift.move(-20);
+            } else {
+                lift.move(std::numeric_limits<std::int32_t>::min()); /**< move the front lift down at maximum power */
+            }
+
 
         /** else hold the front lift at a positions */
         } else {
@@ -311,12 +315,12 @@ void user_control::conveyor_control()
         if (partner->get_digital(E_CONTROLLER_DIGITAL_A)) {
 
             /** if the conveyor is not spinning forwards, spin it forwards */
-            if (conveyor.get_voltage() <= 0) {
+            if (conveyor.get_target_velocity() <= 0) {
                 /** move the conveyor forwards at maximum power */
                 conveyor.move(std::numeric_limits<std::int32_t>::max());
 
             /** else if the conveyor is spinning forwards, stop it */
-            } else if (conveyor.get_voltage() > 0) {
+            } else if (conveyor.get_target_velocity() > 0) {
                 /** stop the conveyor */
                 conveyor.move(0);
             }
@@ -331,12 +335,12 @@ void user_control::conveyor_control()
         } else if (partner->get_digital(E_CONTROLLER_DIGITAL_B)) {
 
             /** if the conveyor is not spinning backwards, spin it backwards */
-            if (conveyor.get_voltage() >= 0) {
+            if (conveyor.get_target_velocity() >= 0) {
                 /** move the conveyor backwards at maximum power */
                 conveyor.move(std::numeric_limits<std::int32_t>::min());
 
             /** else if the conveyor is spinning backwards, stop it */
-            } else if (conveyor.get_voltage() < 0) {
+            } else if (conveyor.get_target_velocity() < 0) {
                 /** stop the conveyor  */
                 conveyor.move(0);
             }
