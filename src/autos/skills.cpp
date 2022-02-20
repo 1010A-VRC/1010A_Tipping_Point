@@ -32,7 +32,7 @@ void skillsAuto()
     // turn to face the neutral mogo
     turnJPID2(89, 0, 1, 0, 0, 2000);
     // correct heading
-    forwardVisionTracking(1, &front_yellow_mogo_alderfeild, 0.8, 2500);
+    forwardVisionTracking(1, &front_yellow_mogo_alderfeild, 0.8, 3500);
     // grab the neutral mogo
     forwardJPIDfrontDistance(10, 0, 0, 1, 0.24, 0, 0, 2500); // 0.22
     // clamp the mogo

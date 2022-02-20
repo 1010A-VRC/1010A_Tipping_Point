@@ -111,6 +111,14 @@ void autonomous ()
 
 }
 
+
+void flipout() {
+	conveyor.move(-600);
+	pros::delay(100);
+	conveyor.move(0);
+}
+
+
 /**
  * @brief Operator control code
  *
@@ -130,11 +138,12 @@ void autonomous ()
 void opcontrol () 
 {
 	/** create tasks for drivetrain control */
+	//pros::Task ringGuideFlipout(flipout);
 	pros::Task drivetrainControl(user_control::drivetrain_control); /**< task controlling the drivetrain 						*/
 	pros::Task frontLiftControl(user_control::front_lift_control); /**< task controlling the front lift 						*/
 	pros::Task frontClampControl(user_control::front_clamp_control); /**< task controlling the front clamp 						*/
 	pros::Task backClampControl(user_control::back_clamp_control); /**< task controlling the back clamp							*/
-	pros::Task conveyorControl(user_control::conveyor_control); /**< task controlling the conveyor 								*/
 	pros::Task drivetoggle(user_control::driveToggle);
-	
+	pros::Task conveyorControl(user_control::conveyor_control); /**< task controlling the conveyor 								*/
+
 }

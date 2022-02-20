@@ -22,7 +22,7 @@ void right3G(pros::vision_signature_s_t* yellowMogo, double yellowMogoID, pros::
     // go back
     backwardJPIDbackDistance(720, 1500, 0, 0.1, 0.22, 0, 0, 15000);
     // align with middle mogo
-    turnJPID(127, 0.1, 0.91, 0, 0, 1500);
+    turnJPID(130, 0.1, 0.91, 0, 0, 1500);
     // go back and clamp the middle mogo
     backwardJPIDbackDistance(-125, 0, 0, 0.1, 0.12, 0.00006, 0, 2500);
     backClamp.set_value(true);

@@ -65,9 +65,9 @@ pros::Rotation frontLiftRotation (4);
  * Signatures for different locations are highly recommended
  *
  */
-pros::vision_signature_s_t front_red_mogo_alderfeild = pros::Vision::signature_from_utility (1, 8787, 10923, 9854, -1537, -255, -896, 3.8, 0); /**< red mogo for the front vision sensor at the Alderfeild field        */
-pros::vision_signature_s_t front_blue_mogo_alderfeild = pros::Vision::signature_from_utility (2, -3001, -1805, -2404, 8313, 11049, 9682, 4.7, 0); /**< blue mogo for the front vision sensor at the Alderfeild field    */
-pros::vision_signature_s_t front_yellow_mogo_alderfeild = pros::Vision::signature_from_utility (3, 1913, 2769, 2342, -3905, -2933, -3420, 3.2, 0); /**< yellow mogo for the front vision sensor at the Alderfeild field */
+pros::vision_signature_s_t front_red_mogo_alderfeild = pros::Vision::signature_from_utility (3, 6197, 8651, 7424, -873, -313, -594, 3, 0); /**< red mogo for the front vision sensor at the Alderfeild field        */
+pros::vision_signature_s_t front_blue_mogo_alderfeild = pros::Vision::signature_from_utility (2, -2265, -1353, -1810, 6479, 9495, 7986, 3, 0);; /**< blue mogo for the front vision sensor at the Alderfeild field    */
+pros::vision_signature_s_t front_yellow_mogo_alderfeild = pros::Vision::signature_from_utility(3, -1, 2079, 1038, -3665, -2527, -3096, 2.3, 0);
 
 /**
  * @brief Back vision sensor signatures
@@ -80,6 +80,12 @@ pros::vision_signature_s_t front_yellow_mogo_alderfeild = pros::Vision::signatur
 pros::vision_signature_s_t back_red_mogo_alderfeild = pros::Vision::signature_from_utility (1, 4445, 10685, 7566, -1781, 133, -824, 2.1, 0); /**< red mogo for the back vision sensor at the Alderfeild field       */
 pros::vision_signature_s_t back_blue_mogo_alderfeild = pros::Vision::signature_from_utility (2, -3687, -2001, -2844, 7461, 12243, 9852, 2.6, 0); /**< blue mogo for the back vision sensor at the Alderfeild field  */
 pros::vision_signature_s_t back_yellow_mogo_alderfeild = pros::Vision::signature_from_utility (3, 1035, 1857, 1446, -4025, -2953, -3490, 3, 0); /**< yellow mogo for the back vision sensor at the Alderfeild field */
+
+
+/**
+ * @brief front vision sensor sign
+ * 
+ */
 
 /**
  * @brief 3-wire sensors

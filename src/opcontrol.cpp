@@ -224,7 +224,7 @@ void user_control::front_lift_control()
 
         /** else if controller button L2 is pressed, move the front lift down */
         } else if (master.get_digital(E_CONTROLLER_DIGITAL_L2) && frontLiftRotation.get_angle() >= E_FRONT_LIFT_HOME) {
-            if (frontLiftRotation.get_angle() < 2000) {
+            if (frontLiftRotation.get_angle() < 500) {
                 lift.move(-20);
             } else {
                 lift.move(std::numeric_limits<std::int32_t>::min()); /**< move the front lift down at maximum power */

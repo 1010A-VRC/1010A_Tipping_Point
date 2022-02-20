@@ -14,15 +14,15 @@ void left2G()
     // deactivate the front clamp
     pros::Task lambdaTask1{[=] { frontClamp.set_value(true); }};
     // go forward 
-    forwardJPIDfrontDistance(10, 1400, 300, 100, 0.3, 0, 0, 1100); // 0.22
+    forwardJPIDfrontDistance(4, 1400, 400, 100, 0.22, 0.00001, 0, 2000); // 0.22
     // activate the clamp
     frontClamp.set_value(false);
 
     // go back while simultaneously flipping out the ring guide
     pros::Task lambdaTask2{[=] { conveyor.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE); conveyor.move(-600); pros::delay(100); conveyor.move(0); pros::delay(100); }};
-    basicForwardJPID(-40, 3, 6, 0, 0, 1500);
+    basicForwardJPID(-45, 1, 6, 0, 0, 1500);
     // turn right to face the alliance mogo
-    turnJPID2(105, 0, 2, 0, 0, 1500);
+    turnJPID2(-99, 0, 2, 0, 0, 1500);
     // reverse and clamp the alliance mogo
     backwardJPIDbackDistance(-118, 0, 0, 0.1, 0.2, 0.00006, 0, 1500);
     backClamp.set_value(true);
