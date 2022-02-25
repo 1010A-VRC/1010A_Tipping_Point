@@ -52,7 +52,7 @@ pros::Motor conveyor (2, pros::E_MOTOR_GEARSET_06, false);
 pros::IMU imu1 (11);
 pros::IMU imu2 (12);
 pros::Vision frontVision (1);
-pros::Distance frontDistance (6);
+pros::Distance frontDistance (7);
 pros::Vision backVision (8);
 pros::Distance backDistance (19);
 pros::Rotation frontLiftRotation (4); 

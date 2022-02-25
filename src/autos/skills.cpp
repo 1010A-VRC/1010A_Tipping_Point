@@ -12,27 +12,25 @@ using namespace pros;
 void skillsAuto()
 {
     // reverse and clamp the alliance mogo
-    backwardJPIDbackDistance(-118, 0, 0, 0.1, 0.2, 0.00006, 0, 1500);
+    backwardJPIDbackDistance(-118, 0, 0, 0.1, 0.2, 0.00006, 0, 800);
     backClamp.set_value(true);
     frontClamp.set_value(true);
     // go forward slightly to allow for a better clamp while flipping out the conveyor
     pros::Task lambdaTask1{[=] { conveyor.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE); conveyor.move(-600); pros::delay(100); conveyor.move(0); pros::delay(100); }};
-    basicForwardJPID(20, 3, 6, 0, 0, 1000);
-    // unclamp the back mogo
-    backClamp.set_value(false);
-    // go forward a bit more
-    basicForwardJPID(5, 3, 6, 0, 0, 1000);
-    // go back to clamp the mogo
-    backwardJPIDbackDistance(-118, 0, 0, 0.1, 0.2, 0.00006, 0, 1000);
-    // clamp the mogo
-    backClamp.set_value(true);
+    basicForwardJPID(15, 3, 6, 0, 0, 1000);
     // score the preloads
     conveyor.move(600);
 
     // turn to face the neutral mogo
-    turnJPID2(89, 0, 1, 0, 0, 2000);
+    turnJPID2(103, 0, 1.4, 0, 0.0001, 1500);
+    // temporary delay to allow the user to check whether the turn has been accurately completed
+    pros::delay(7000);
+    // go towards the neutral mobile goal
+    forwardJPIDfrontDistance(4, 0, 0, 1, 0.18, 0, 0, 2000); // 0.22
+
+    /*
     // correct heading
-    forwardVisionTracking(1, &front_yellow_mogo_alderfeild, 0.8, 3500);
+    forwardVisionTracking(1, &f_y_mogo_sit, 0.8, 3500);
     // grab the neutral mogo
     forwardJPIDfrontDistance(10, 0, 0, 1, 0.24, 0, 0, 2500); // 0.22
     // clamp the mogo
@@ -62,7 +60,7 @@ void skillsAuto()
     // delay for 500 ms
     pros::delay(500);
     // correct heading with the vision sensor 
-    forwardVisionTracking(1, &front_blue_mogo_alderfeild, 0.7, 2500);
+    forwardVisionTracking(1, &f_b_mogo_sit, 0.7, 2500);
     // go and pick up the alliance mogo
     forwardJPIDfrontDistance(10, 0, 0, 1, 0.28, 0, 0, 2500); // 0.22
     // clamp the mogo
@@ -100,10 +98,10 @@ void skillsAuto()
     // turn right to face the yellow neutral mogo
     turnJPID2((imu1.get_rotation() + imu2.get_rotation())/2 + 50, 0, 1, 0, 0, 2000);
     // correct the heading with the vision sensor
-    forwardVisionTracking(1, &front_yellow_mogo_alderfeild, 0.75, 2500);
+    forwardVisionTracking(1, &f_y_mogo_sit, 0.75, 2500);
     // grab the neutral mogo
     forwardJPIDfrontDistance(10, 0, 0, 1, 0.24, 0, 0, 2500); // 0.22
     // clamp the mogo
-    frontClamp.set_value(false);
+    frontClamp.set_value(false); */
 
 }
