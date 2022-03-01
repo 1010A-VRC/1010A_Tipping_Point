@@ -7,7 +7,7 @@
 pros::Task* liftStopper = nullptr;
 
 // variable that decides whether the lift should stop or not
-bool liftStop = false;
+static bool liftStop = false;
 
 void stopLift() {
 
@@ -40,6 +40,7 @@ void stopLift() {
 
     // when it is no longer autonomous, or the lift shouldn't be stopped, stop the task from running
     liftStopper->remove();
+    master.rumble("-");
 }
 
 
@@ -58,7 +59,7 @@ void moveLift(double goal, double kP, double kI, double kD, double maxTime) {
     // define variables 
     double error = goal - frontLiftRotation.get_angle();
     double prevError = error;
-    double derivative = error - prevError;
+    double derivative = error - prevError; 
     double totalError = 0;
     double motorPower = error * kP + totalError * kI + derivative * kD;
 

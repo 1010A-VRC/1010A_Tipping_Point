@@ -21,12 +21,118 @@ void skillsAuto()
     // score the preloads
     conveyor.move(600);
 
-    // turn to face the neutral mogo
-    turnJPID2(103, 0, 1.4, 0, 0.0001, 1500);
-    // temporary delay to allow the user to check whether the turn has been accurately completed
-    pros::delay(7000);
-    // go towards the neutral mobile goal
+    // turn to face the neutral mogo 
+    turnJPID2(102, 0, 1.35, 0, 0, 1000);
+    turnJPID2(102, 0, 12, 0, 0.1, 1000); // 1.35 kd = 0.1
+    // go towards the neutral mobile goal 
     forwardJPIDfrontDistance(4, 0, 0, 1, 0.18, 0, 0, 2000); // 0.22
+    // clamp the neutral mobile goal 
+    frontClamp.set_value(false); 
+
+    // lift up the lift while turning to the right
+    pros::Task lambdaTask2{[=] { moveLift(11700, 1, 0, 0, 3000); }};
+    turnJPID2(90, 0, 4, 0, 0, 2000);
+    // spin the conveyor 
+    conveyor.move(127);
+    // go towards some of the rings
+    basicForwardJPID(35, 3, 6, 0, 0, 2000);
+    // turn right
+    turnJPID2(180, 0, 1.6, 0, 0, 1500);
+    turnJPID2(180, 0, 8, 0, 0, 1500);
+    // go forwards
+    basicForwardJPID(35, 3, 6, 0, 0, 2000);
+
+    // turn left
+    turnJPID2(90, 0, 2, 0, 0, 1500);
+    turnJPID2(90, 0, 12, 0, 0, 1500);
+    // go forward a little bit
+    basicForwardJPID(17.5, 3, 6, 0, 0, 1000);
+    // move the lift down to balance the ramp
+    moveLift(6000, 1, 0, 0, 3000);
+    // unclamp 
+    frontClamp.set_value(true);
+    // go back a little bit 
+    basicForwardJPID(-7, 3, 7.5, 0, 0, 1000);
+
+    // move the lift up 
+    moveLift(11700, 1, 0, 0, 3000);
+    pros::delay(250);
+    // go back some more while putting the lift down
+    pros::Task lambdaTask3{[=] { moveLift(0, 1, 0, 0, 3000); }};
+    basicForwardJPID(-15, 3, 6, 0, 0, 1000);
+    // unclamp the back 
+    backClamp.set_value(false);
+    // go forward a little bit
+    basicForwardJPID(10, 3, 6, 0, 0, 1000);
+
+    // turn to face the back mogo
+    turnJPID2(270, 0, 1.3, 0, 0, 3000);
+    turnJPID2(270, 0, 8, 0, 0, 3000);
+    // go forward to clamp the mogo
+    forwardJPIDfrontDistance(4, 0, 0, 1, 0.4, 0, 0, 1500);
+    frontClamp.set_value(false);
+    basicForwardJPID(-2, 3, 6, 0, 0, 1000);
+
+    // turn to face the ramp while lifting up the mogo
+    pros::Task lambdaTask4{[=] { moveLift(11700, 1, 0, 0, 3000); }};
+    turnJPID2(100, 0, 1.3, 0, 0, 1500);
+    turnJPID2(100, 0, 8, 0, 0, 1500);
+
+    // go forward a little bit
+    basicForwardJPID(23, 3, 6, 0, 0, 1000);
+    // move the lift down to balance the ramp
+    moveLift(6000, 1, 0, 0, 3000);
+    // unclamp 
+    frontClamp.set_value(true);
+
+    delay(200);
+
+    // move the lift up 
+    moveLift(11700, 1, 0, 0, 3000);
+
+    // go back a little bit 
+    basicForwardJPID(-7, 3, 7.5, 0, 0, 1000);
+    /*
+    // move the lift up 
+    moveLift(11700, 1, 0, 0, 3000);
+    */
+    pros::delay(250);
+    // go back some more while putting the lift down
+    pros::Task lambdaTask5{[=] { moveLift(0, 1, 0, 0, 3000); }};
+    basicForwardJPID(-15, 3, 6, 0, 0, 1000);
+
+    // turn to face the back mogo
+    turnJPID2(255, 0, 1.3, 0, 0, 3000);
+    turnJPID2(255, 0, 4, 0, 0, 3000);
+    forwardJPIDfrontDistance(4, 0, 0, 1, 0.4, 0, 0, 1500);
+    frontClamp.set_value(false);
+
+    
+    // turn to face the ramp while lifting up the mogo just a little so the mogo doesn't touch the ground
+    pros::Task lambdaTask6{[=] { moveLift(2000, 1, 0, 0, 3000); }};
+    turnJPID2(80, 0, 1.3, 0, 0, 1500);
+    turnJPID2(80, 0, 6, 0, 0, 1500);
+    // prepare the arm to put the mogo down 
+    moveLift(11700, 1, 0, 0, 3000);
+    //go forward to put the mogo down 
+    basicForwardJPID(40, 3, 6, 0, 0, 1000);
+    delay(50);
+    basicForwardJPID(10, 3, 6, 0, 0, 1000);
+    // move the lift down so it is slightly above the ramp
+    moveLift(7500, 1, 0, 0, 3000);
+
+    // turn to the right to make space for the tall neutral mogo
+    turnJPID2(160, 0, 1.3, 0, 0, 1500);
+    turnJPID2(160, 0, 6, 0, 0, 1500);
+    // turn to the left 
+    turnJPID2(110, 0, 1.3, 0, 0, 1500);
+    turnJPID2(110, 0, 6, 0, 0, 1500);
+    // give the robot a chance to lose all its momentum
+    delay(500);
+    // release the tall neutral mogo
+    frontClamp.set_value(false);
+
+    
 
     /*
     // correct heading

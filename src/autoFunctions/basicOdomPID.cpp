@@ -387,6 +387,8 @@ void turnJPID2(double goal, double kJ, double kP, double kI, double kD, double m
     double motorPower = 0; // the power to be sent to the drivetrain
     double prevMotorPower = 0; // the value of motorPower at last cycle
     double slew = 0; // the maximum change in velocity
+    double recordedTime = 0;
+    bool stopLoop = false;
 
     for (int time = 0; time < maxTime; time+=10) {
 
@@ -399,8 +401,15 @@ void turnJPID2(double goal, double kJ, double kP, double kI, double kD, double m
         motorPower = error * kP + totalError * kI + derivative * kD; // calculate motor power
 
         // break out of the loop if necessary
-        if (fabs(error) < 1) {
-            break;
+        if (fabs(error) < 0.5 && !stopLoop) {
+            stopLoop = true;
+            recordedTime = time;
+        } else if (fabs(error) < 0.5 && stopLoop) {
+            if (time - recordedTime >= 50) {
+                break;
+            }
+        } else {
+            stopLoop = false;
         }
 
         // spin the motors
@@ -574,27 +583,6 @@ void back_vision_align(int sigID, pros::vision_signature_s_t* sig, double turnKP
 
         pros::delay(10);
     }
-}
-
-
-
-// function that returns data, such as location and angle of an object tracked by a vision sensor
-signature visual_odometry(pros::vision_signature_s_t* trackedObject, double trackedObjectID, double trackedObjectWidth)
-{
-    // set the tracked object 
-    frontVision.set_signature(trackedObjectID, trackedObject);
-    // get info from the tracked objects
-    pros::vision_object_s_t trackedSig = backVision.get_by_sig(0, trackedObjectID);
-
-    // get the width of the tracked object
-    double width = trackedSig.width;
-    // get inches by pixel
-    double ipp = trackedObjectWidth/width;
-    // get the chord length 
-    double chordLength = ipp*316;
-
-    // divide the isosceles triangle into 2 right angle triangles, then find the adjacent
-    double deltaY = chordLength/tan(30.5*(M_PI/180));
 }
 
 
