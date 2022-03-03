@@ -7,21 +7,38 @@
 using namespace pros;
 
 
-// function that moves the left side of the drivetrain
-void moveLeftDrivetrain(double speed) {
+/**
+ * @brief Function that moves the left side of the drivetrain by controlling the voltage
+ * 
+ * @param speed how fast to move the left side of the drivetrain, from -127 to 127
+ *
+ */
+void moveLeftDrivetrain(double speed) 
+{
     l1.move(speed);
     l2.move(speed);
     l3.move(speed);
 }
 
-// function that moves the right side of the drivetrain
-void moveRightDrivetrain(double speed) {
+
+/**
+ * @brief Function that moves the right side of the drivetrain by controlling the voltage
+ * 
+ * @param speed how fast to move the right side of the drivetrain, from -127 to 127
+ *
+ */
+void moveRightDrivetrain(double speed) 
+{
     r1.move(speed);
     r2.move(speed);
     r3.move(speed);
 }
 
-// function that stops the drivetrain 
+
+/**
+ * @brief Function that stops all motors on the drivetrain
+ * 
+ */
 void stopDrivetrain() {
     l1.move(0);
     l2.move(0);
@@ -32,292 +49,378 @@ void stopDrivetrain() {
 }
 
 
-// forward odom PID
+/**
+ * @brief Function that makes the robot go in a straight line towards a point
+ * 
+ * @param goalX the X position of the goal
+ * @param goalY the Y position of the goal
+ * @param kJ jerk parameter, controls the acceleration of the robot
+ * @param kP proportional parameter
+ * @param kI integral parameter
+ * @param kD derivative parameter
+ * @param maxTime timeout
+ *
+ */
 void forwardJPIDTrack(double goalX, double goalY, double kJ, double kP, double kI, double kD, double maxTime) 
 {
-    double newGoal = sideTrackingWheel.get_value() + (std::sqrt(std::pow(goalX - odom.get_x(), 2) + std::pow(goalY - odom.get_y(), 2)) / (M_PI*2.75))*360; // get the distance between the robot and the target point
-    double error = newGoal - sideTrackingWheel.get_value(); // calculate the error
-    double prevError = error; // the value of error at last cycle
-    double derivative = error - prevError; // the change in error since last cycle
-    double totalError = 0; // the total error since the start of the function
-    double motorPower = 0; // the power to be sent to the drivetrain
-    double prevMotorPower = 0; // the value of motorPower at last cycle
-    double slew = kJ; // the maximum change in velocity
+    double newGoal = sideTrackingWheel.get_value() + (std::sqrt(std::pow(goalX - odom.get_x(), 2) + std::pow(goalY - odom.get_y(), 2)) / (M_PI*2.75))*360; /**< get the distance between the robot and the target point */
+    double error = newGoal - sideTrackingWheel.get_value(); /**< calculate the error                                                                                                                                    */
+    double prevError = error; /**< the value of error at last cycle                                                                                                                                                     */
+    double derivative = error - prevError; /**< the change in error since last cycle                                                                                                                                    */
+    double totalError = 0; /**< the total error since the start of the function                                                                                                                                         */
+    double motorPower = 0; /**< the power to be sent to the drivetrain                                                                                                                                                  */
+    double prevMotorPower = 0; /**< the value of motorPower at last cycle                                                                                                                                               */
+    double slew = kJ; /**< the maximum change in velocity                                                                                                                                                               */
 
+    /** main loop */
     for (int time = 0; time < maxTime; time+=10) {
 
-        // calculate stuff
-        error = newGoal - sideTrackingWheel.get_value(); // calculate error
-        derivative = error - prevError; // calculate derivative
-        prevError = error; // update prevError
-        totalError += error; // calculate error
-        slew += kJ;
-        motorPower = error * kP + totalError * kI + derivative * kD; // calculate motor power
+        /** calculate variables */
+        error = newGoal - sideTrackingWheel.get_value(); /**< calculate error                   */
+        derivative = error - prevError; /**< calculate derivative                               */
+        prevError = error; /**< update prevError                                                */
+        totalError += error; /**< calculate error                                               */
+        slew += kJ; /**< update acceleration                                                    */
+        motorPower = error * kP + totalError * kI + derivative * kD; /**< calculate motor power */
 
-        // break out of the loop if necessary
+        /** break out of the loop if necessary */
         if (fabs(error) < 10) {
             break;
         }
 
-        // slew
+        /** slew */
         if (motorPower - prevMotorPower > slew) {
             motorPower = prevMotorPower + slew;
         }
-        prevMotorPower = motorPower;
+        prevMotorPower = motorPower; /**< update the previous motor power */
 
-        // spin the motors
+        /** spin the motors */
         moveLeftDrivetrain(motorPower);
         moveRightDrivetrain(motorPower);
-        std::printf("e: %f", newGoal);
         
+        /** prevent function hogging resources */
         pros::delay(10);
     }
+    /** stop the drivetrain in case it is not already */
     stopDrivetrain();
 }
 
 
+/**
+ * @brief Function that makes the robot go in a straight line towards a point
+ * 
+ * @param goalX the X position of the goal
+ * @param goalY the Y position of the goal
+ * @param kJ jerk parameter, controls the acceleration of the robot
+ * @param kP proportional parameter
+ * @param kI integral parameter
+ * @param kD derivative parameter
+ * @param maxTime timeout
+ *
+ */
+void backwardJPIDTrack(double goalX, double goalY, double kJ, double kP, double kI, double kD, double maxTime) 
+{
+    double newGoal = sideTrackingWheel.get_value() - (std::sqrt(std::pow(goalX - odom.get_x(), 2) + std::pow(goalY - odom.get_y(), 2)) / (M_PI*2.75))*360; /**< get the distance between the robot and the target point */
+    double error = newGoal - sideTrackingWheel.get_value(); /**< calculate the error                                                                                                                                    */
+    double prevError = error; /**< the value of error at last cycle                                                                                                                                                     */
+    double derivative = error - prevError; /**< the change in error since last cycle                                                                                                                                    */
+    double totalError = 0; /**< the total error since the start of the function                                                                                                                                         */
+    double motorPower = 0; /**< the power to be sent to the drivetrain                                                                                                                                                  */
+    double prevMotorPower = 0; /**< the value of motorPower at last cycle                                                                                                                                               */
+    double slew = kJ; /**< the maximum change in velocity                                                                                                                                                               */
 
-// forward PID using front distance sensor
+    /** main loop */
+    for (int time = 0; time < maxTime; time+=10) {
+
+        /** calculate variables */
+        error = newGoal - sideTrackingWheel.get_value(); /**< calculate error                   */
+        derivative = error - prevError; /**< calculate derivative                               */
+        prevError = error; /**< update prevError                                                */
+        totalError += error; /**< calculate error                                               */
+        slew += kJ; /**< the maximum change in velocity                                         */
+        motorPower = error * kP + totalError * kI + derivative * kD; /**< calculate motor power */
+
+        /** break out of the loop if necessary */
+        if (fabs(error) < 10) {
+            break;
+        }
+
+        /** slew */
+        if (motorPower - prevMotorPower < -slew) {
+            motorPower = prevMotorPower - slew;
+        }
+        prevMotorPower = motorPower; /**< update the previous motor power */
+
+        /** spin the motors */
+        moveLeftDrivetrain(motorPower);
+        moveRightDrivetrain(motorPower);
+        
+        /** prevent function hogging resources */
+        pros::delay(10);
+    }
+    /** stop the drivetrain in case it is not already */
+    stopDrivetrain();
+}
+
+
+/**
+ * @brief Function that goes forward by using the front distance sensor
+ * 
+ * @param goal the goal value of the distance sensor, how far away the tracked object is from the distance sensor
+ * @param expectedDistance the expected distance from the tracked object and the distance sensor at the start of the movement
+ * @param clampOffset how long the function needs to use expectedDistance as error at the start, to allow for the front clamp to go up
+ * @param kJ jerk parameter, controls the acceleration of the robot
+ * @param kP proportional parameter
+ * @param kI integral parameter
+ * @param kD derivative parameter
+ * @param maxTime timeout
+ *
+ */
 void forwardJPIDfrontDistance(double goal, double expectedDistance, double clampOffset, double kJ, double kP, double kI, double kD, double maxTime) 
 {
-    double error = 0; // calculate the error
-    double prevError = expectedDistance; // the value of error at last cycle
-    double derivative = error - prevError; // the change in error since last cycle
-    double totalError = 0; // the total error since the start of the function
-    double motorPower = 0; // the power to be sent to the drivetrain
-    double prevMotorPower = 0; // the value of motorPower at last cycle
-    double slew = kJ; // the maximum change in velocity
+    double error = 0; /**< calculate the error                                       */
+    double prevError = expectedDistance; /**< the value of error at last cycle       */
+    double derivative = error - prevError; /**< the change in error since last cycle */
+    double totalError = 0; /**< the total error since the start of the function      */
+    double motorPower = 0; /**< the power to be sent to the drivetrain               */
+    double prevMotorPower = 0; /**< the value of motorPower at last cycle            */
+    double slew = kJ; /**< the maximum change in velocity                            */
 
-    double totalPower = 0;
-
+    /** main loop */
     for (double time = 0; time < maxTime; time+=10) {
 
-        // calculate stuff
+        /** calculate error, if statement to decide whether to use expectedDistance */
         if (time < clampOffset) {
             error = -expectedDistance;
         } else {
             if (frontDistance.get() < 5) {
-                error = prevError;
+                error = prevError; /**< calculate error using expectedDistance as position */
             } else {
-                error = goal - frontDistance.get(); // calculate error
+                error = goal - frontDistance.get(); /**< calculate error normally */
             }
         }
 
-        totalPower += (l1.get_actual_velocity()+l2.get_actual_velocity())/2;
-        derivative = error - prevError; // calculate derivative
-        prevError = error; // update prevError
-        totalError += error; // calculate error
-        slew += kJ;
-        motorPower = error * kP + totalError * kI + derivative * kD; // calculate motor power
+        derivative = error - prevError; /**< calculate derivative                               */
+        prevError = error; /**< update prevError                                                */
+        totalError += error; /**< calculate error                                               */
+        slew += kJ; /**< update acceleration                                                    */
+        motorPower = error * kP + totalError * kI + derivative * kD; /**< calculate motor power */
 
-        // break out of the loop if necessary
+        /** break out of the loop if necessary */
         if (fabs(error) < 40) {
-            totalPower /= time/10;
-            pros::lcd::print(7, "average speed: %f", totalPower);
             break;
         }
 
-        // slew
+        /** slow down the acceleration of the robot if necessary */
         if (motorPower - prevMotorPower < -slew) {
             motorPower = prevMotorPower - slew;
         }
-        prevMotorPower = motorPower;
+        prevMotorPower = motorPower; /**< update the previous motor power */
 
-        // spin the motors
+        /** spin the motors */
         moveLeftDrivetrain(-motorPower);
         moveRightDrivetrain(-motorPower);
-
-        printf("error: %f \r\n", error);
         
+        /** delay to prevent all resources from being used */
         pros::delay(10);
     }
+    /** stop all motors on the drivetrain */
     stopDrivetrain();
 }
 
 
-
-// forward PID using back distance sensor
+/**
+ * @brief PID using the back distance sensor to move the robot forwards 
+ * 
+ * @param goal the target distance between the tracked object and the distance sensor
+ * @param expectedDistance the expected distance from the tracked object and the distance sensor at the start of the movement
+ * @param clampOffset how long the function needs to use expectedDistance as error at the start, to allow for the back clamp to go up
+ * @param kJ jerk parameter, controls the acceleration of the robot
+ * @param kP proportional parameter
+ * @param kI integral parameter
+ * @param kD derivative parameter
+ * @param maxTime timeout
+ *
+ */
 void forwardJPIDbackDistance(double goal, double expectedDistance, double clampOffset, double kJ, double kP, double kI, double kD, double maxTime) 
 {
-    double error = goal - backDistance.get(); // calculate the error
-    double prevError = error; // the value of error at last cycle
-    double derivative = error - prevError; // the change in error since last cycle
-    double totalError = 0; // the total error since the start of the function
-    double motorPower = 0; // the power to be sent to the drivetrain
-    double prevMotorPower = 0; // the value of motorPower at last cycle
-    double slew = kJ; // the maximum change in velocity
+    double error = goal - backDistance.get(); /**< calculate the error               */
+    double prevError = error; /**< the value of error at last cycle                  */
+    double derivative = error - prevError; /**< the change in error since last cycle */
+    double totalError = 0; /**< the total error since the start of the function      */
+    double motorPower = 0; /**< the power to be sent to the drivetrain               */
+    double prevMotorPower = 0; /**< the value of motorPower at last cycle            */
+    double slew = kJ; /**< the maximum change in velocity                            */
 
+    /** main loop */
     for (int time = 0; time < maxTime; time+=10) {
 
-        // calculate stuff
+        /** calculate error, if statement to decide whether to use expectedDistance */
         if (time < clampOffset) {
-            error = expectedDistance;
+            error = expectedDistance; /**< calculate error using expectedDistance as position */
         } else {
-            error = goal - backDistance.get(); // calculate error
+            error = goal - backDistance.get(); /**< calculate error normally */
         }
 
-        derivative = error - prevError; // calculate derivative
-        prevError = error; // update prevError
-        totalError += error; // calculate error
-        slew += kJ;
-        motorPower = error * kP + totalError * kI + derivative * kD; // calculate motor power
+        derivative = error - prevError; /**< calculate derivative                               */
+        prevError = error; /**< update previous error                                           */
+        totalError += error; /**< update total error                                            */
+        slew += kJ; /**< update acceleration                                                    */
+        motorPower = error * kP + totalError * kI + derivative * kD; /**< calculate motor power */
 
-        // break out of the loop if necessary
+        /** break out of the loop if necessary */
         if (fabs(error) < 40) {
             break;
         }
 
-        // slew
+        /** slow down the acceleration of the robot if necessary */
         if (motorPower - prevMotorPower > slew) {
             motorPower = prevMotorPower + slew;
         }
-        prevMotorPower = motorPower;
+        prevMotorPower = motorPower; /**< update the previous motor power */
 
-        // spin the motors
+        /** spin the motors */
         moveLeftDrivetrain(motorPower);
         moveRightDrivetrain(motorPower);
         
+        /** delay to prevent all resources from being used */
         pros::delay(10);
     }
+    /** stop all motors on the drivetrain */
     stopDrivetrain();
 }
 
 
-
-// backward odom PID
-void backwardJPIDTrack(double goalX, double goalY, double kJ, double kP, double kI, double kD, double maxTime) 
-{
-    
-    double newGoal = sideTrackingWheel.get_value() - (std::sqrt(std::pow(goalX - odom.get_x(), 2) + std::pow(goalY - odom.get_y(), 2)) / (M_PI*2.75))*360; // get the distance between the robot and the target point
-    double error = newGoal - sideTrackingWheel.get_value(); // calculate the error
-    double prevError = error; // the value of error at last cycle
-    double derivative = error - prevError; // the change in error since last cycle
-    double totalError = 0; // the total error since the start of the function
-    double motorPower = 0; // the power to be sent to the drivetrain
-    double prevMotorPower = 0; // the value of motorPower at last cycle
-    double slew = kJ; // the maximum change in velocity
-
-    for (int time = 0; time < maxTime; time+=10) {
-
-        // calculate stuff
-        error = newGoal - sideTrackingWheel.get_value(); // calculate error
-        derivative = error - prevError; // calculate derivative
-        prevError = error; // update prevError
-        totalError += error; // calculate error
-        slew += kJ;
-        motorPower = error * kP + totalError * kI + derivative * kD; // calculate motor power
-
-        // break out of the loop if necessary
-        if (fabs(error) < 10) {
-            break;
-        }
-
-        // slew
-        if (motorPower - prevMotorPower < -slew) {
-            motorPower = prevMotorPower - slew;
-        }
-        prevMotorPower = motorPower;
-
-        moveLeftDrivetrain(motorPower);
-        moveRightDrivetrain(motorPower);
-        
-        pros::delay(10);
-    }
-    stopDrivetrain();
-}
-
-
-
-// backward odom PID
+/**
+ * @brief function that makes the robot move backwards using data from the back distance sensor
+ * 
+ * @param goal the target distance between the tracked object and the distance sensor
+ * @param expectedDistance the expected distance from the tracked object and the distance sensor at the start of the movement
+ * @param clampOffset how long the function needs to use expectedDistance as error at the start, to allow for the back clamp to go up
+ * @param kJ jerk parameter, controls the acceleration of the robot
+ * @param kP proportional parameter
+ * @param kI integral parameter
+ * @param kD derivative parameter
+ * @param maxTime timeout
+ *
+ */
 void backwardJPIDbackDistance(double goal, double expectedDistance, double clampOffset, double kJ, double kP, double kI, double kD, double maxTime) 
 {    
-    double error = goal - backDistance.get(); // calculate the error // 30 - 1100
-    double prevError = error; // the value of error at last cycle
-    double derivative = error - prevError; // the change in error since last cycle
-    double totalError = 0; // the total error since the start of the function
-    double motorPower = 0; // the power to be sent to the drivetrain
-    double prevMotorPower = 0; // the value of motorPower at last cycle
-    double slew = kJ; // the maximum change in velocity
+    double error = goal - backDistance.get(); /**< calculate the error               */
+    double prevError = error; /**< the value of error at last cycle                  */
+    double derivative = error - prevError; /**< the change in error since last cycle */
+    double totalError = 0; /**< the total error since the start of the function      */
+    double motorPower = 0; /**< the power to be sent to the drivetrain               */
+    double prevMotorPower = 0; /**< the value of motorPower at last cycle            */
+    double slew = kJ; /**< the maximum change in velocity                            */
 
+    /** main loop */
     for (int time = 0; time < maxTime; time+=10) {
 
-        // calculate stuff
+        /** calculate error, if statement to decide whether to use expectedDistance */
         if (time < clampOffset) {
-            error = -expectedDistance;
+            error = -expectedDistance; /**< calculate error using expectedDistance as position */
         } else {
-            error = goal - backDistance.get(); // calculate error
+            error = goal - backDistance.get(); /**< calculate error normally */
         }
-        derivative = error - prevError; // calculate derivative
-        prevError = error; // update prevError
-        totalError += error; // calculate error
-        slew += kJ;
-        motorPower = error * kP + totalError * kI + derivative * kD; // calculate motor power
 
-        // break out of the loop if necessary
+        derivative = error - prevError; /**< calculate derivative                               */
+        prevError = error; /**< update prevError                                                */
+        totalError += error; /**< calculate error                                               */
+        slew += kJ; /**< update acceleration                                                    */
+        motorPower = error * kP + totalError * kI + derivative * kD; /**< calculate motor power */
+
+        /**< break out of the loop if necessary */
         if (fabs(error) < 10) {
             break;
         }
 
-        // slew
+        /** slew */
         if (motorPower - prevMotorPower < -slew) {
             motorPower = prevMotorPower - slew;
         }
-        prevMotorPower = motorPower;
+        prevMotorPower = motorPower; /**< update the previous motor power */
 
+        /** spin the motors */
         moveLeftDrivetrain(motorPower);
         moveRightDrivetrain(motorPower);
         
+        /** delay to prevent all resources from being used */
         pros::delay(10);
     }
+    /** stop all motors on the drivetrain */
     stopDrivetrain();
 }
 
 
-// backward odom PID
+/**
+ * @brief function that makes the robot move backwards using data from the back distance sensor
+ * 
+ * @param goal the target distance between the tracked object and the distance sensor
+ * @param expectedDistance the expected distance from the tracked object and the distance sensor at the start of the movement
+ * @param clampOffset how long the function needs to use expectedDistance as error at the start, to allow for the back clamp to go up
+ * @param kJ jerk parameter, controls the acceleration of the robot
+ * @param kP proportional parameter
+ * @param kI integral parameter
+ * @param kD derivative parameter
+ * @param maxTime timeout
+ *
+ */
 void backwardJPIDbackDistance2(double goal, double expectedDistance, double clampOffset, double kJ, double kP, double kI, double kD, double maxTime) 
 {    
-    double error = goal - backDistance.get(); // calculate the error // 30 - 1100
-    double prevError = error; // the value of error at last cycle
-    double derivative = error - prevError; // the change in error since last cycle
-    double totalError = 0; // the total error since the start of the function
-    double motorPower = 0; // the power to be sent to the drivetrain
-    double prevMotorPower = 0; // the value of motorPower at last cycle
-    double slew = kJ; // the maximum change in velocity
+    double error = goal - backDistance.get(); /**< calculate the error               */
+    double prevError = error; /**< the value of error at last cycle                  */
+    double derivative = error - prevError; /**< the change in error since last cycle */
+    double totalError = 0; /**< the total error since the start of the function      */
+    double motorPower = 0; /**< the power to be sent to the drivetrain               */
+    double prevMotorPower = 0; /**< the value of motorPower at last cycle            */
+    double slew = kJ; /**< the maximum change in velocity                            */
 
+    /** main loop */
     for (int time = 0; time < maxTime; time+=10) {
 
-        // calculate stuff
+        /** calculate error, if statement to decide whether to use expectedDistance */
         if (time < clampOffset) {
-            error = -expectedDistance;
+            error = -expectedDistance; /**< calculate error using expectedDistance as position */
         } else {
-            error = goal - backDistance.get(); // calculate error
+            error = goal - backDistance.get(); /**< calculate error normally */
         }
-        derivative = error - prevError; // calculate derivative
-        prevError = error; // update prevError
-        totalError += error; // calculate error
-        slew += kJ;
-        motorPower = error * kP + totalError * kI + derivative * kD; // calculate motor power
 
-        // slew
+        derivative = error - prevError; /**< calculate derivative                               */
+        prevError = error; /**< update prevError                                                */
+        totalError += error; /**< calculate error                                               */
+        slew += kJ; /**< update acceleration                                                    */
+        motorPower = error * kP + totalError * kI + derivative * kD; /**< calculate motor power */
+
+        /** slew */
         if (motorPower - prevMotorPower < -slew) {
             motorPower = prevMotorPower - slew;
         }
-        prevMotorPower = motorPower;
+        prevMotorPower = motorPower; /**< update the previous motor power */
 
+        /** spin the motors */
         moveLeftDrivetrain(motorPower);
         moveRightDrivetrain(motorPower);
         
+        /** delay to prevent all resources from being used */
         pros::delay(10);
     }
+    /** stop all motors on the drivetrain */
     stopDrivetrain();
 }
 
 
-
-// function that calculates the error when turning, which is complex since it is bound by 0 to 360
+/**
+ * @brief function that calculates the error when turning, which is complex since it is bound by 0 to 360
+ * 
+ * @param goal the goal the robot wants to reach
+ * @param position the current position of the robot
+ * @return double 
+ *
+ */
 double turnError(double goal, double position)
 {
-    // if the target is closer to the right, turn right
+    /** if the target is closer to the right, turn right */
     if (std::fmod(position+180, 360) > goal && goal != position) {
         if (goal > position) {
             return goal - position;
@@ -325,7 +428,7 @@ double turnError(double goal, double position)
             return goal+360 - position;
         }
 
-    // if the target is closer to the left, turn left
+    /** if the target is closer to the left, turn left */
     } else if (std::fmod(position+180, 360) < goal && goal != position) {
         if (goal < position) {
             return goal - position;
@@ -333,280 +436,284 @@ double turnError(double goal, double position)
             return goal - (position+360);
         }
     
-    // else if goal equals position, return 0
+    /** else if goal equals position, return 0 */
     } else {
         return 0;
     }
 }
 
 
-// PID that turns the robot
+/**
+ * @brief PID that turns the robot
+ * 
+ * @param goal the desired heading the robot should face
+ * @param kJ parameter used to control the acceleration of the robot
+ * @param kP proportional 
+ * @param kI integral
+ * @param kD derivative
+ * @param maxTime timeout
+ *
+ */
 void turnJPID(double goal, double kJ, double kP, double kI, double kD, double maxTime) 
 {
-    double error = turnError(goal, odom.get_heading(false)); // calculate the error
-    double prevError = error; // the value of error at last cycle
-    double derivative = error - prevError; // the change in error since last cycle
-    double totalError = 0; // the total error since the start of the function
-    double motorPower = 0; // the power to be sent to the drivetrain
-    double prevMotorPower = 0; // the value of motorPower at last cycle
-    double slew = 0; // the maximum change in velocity
+    double error = turnError(goal, odom.get_heading(false)); /**< calculate the error */
+    double prevError = error; /**< the value of error at last cycle                   */
+    double derivative = error - prevError; /**< the change in error since last cycle  */
+    double totalError = 0; /**< the total error since the start of the function       */
+    double motorPower = 0; /**< the power to be sent to the drivetrain                */
+    double prevMotorPower = 0; /**< the value of motorPower at last cycle             */
+    double slew = 0; /**< the maximum change in velocity                              */
 
+    /** main loop */
     for (int time = 0; time < maxTime; time+=10) {
 
-        // calculate stuff
-        error = turnError(goal, odom.get_heading(false)); // calculate error
-        derivative = error - prevError; // calculate derivative
-        prevError = error; // update prevError
-        totalError += error; // calculate error
-        slew += kJ;
-        motorPower = error * kP + totalError * kI + derivative * kD; // calculate motor power
+        /** calculate variables */
+        error = turnError(goal, odom.get_heading(false)); /**< calculate error                  */
+        derivative = error - prevError; /**< calculate derivative                               */
+        prevError = error; /**< update prevError                                                */
+        totalError += error; /**< calculate error                                               */
+        slew += kJ; /**< update acceleration                                                    */
+        motorPower = error * kP + totalError * kI + derivative * kD; /**< calculate motor power */
 
-        // break out of the loop if necessary
+        /** break out of the loop if necessary */
         if (fabs(error) < 1) {
             break;
         }
 
-        // spin the motors
+        /** spin the motors */
         moveLeftDrivetrain(motorPower);
         moveRightDrivetrain(-motorPower);
         
+        /** delay to prevent all resources from being used */
         pros::delay(10);
     }
+    /** stop all motors on the drivetrain */
     stopDrivetrain();
 }
 
 
-
-// PID that turns the robot
+/**
+ * @brief PID that turns the robot to face an orientation
+ * 
+ * @param goal the desired heading the robot should face
+ * @param kJ parameter used to control the acceleration of the robot
+ * @param kP proportional 
+ * @param kI integral
+ * @param kD derivative
+ * @param maxTime timeout
+ *
+ */
 void turnJPID2(double goal, double kJ, double kP, double kI, double kD, double maxTime) 
 {
-    double error = goal - (imu1.get_rotation() + imu2.get_rotation())/2; // calculate the error
-    double prevError = error; // the value of error at last cycle
-    double derivative = error - prevError; // the change in error since last cycle
-    double totalError = 0; // the total error since the start of the function
-    double motorPower = 0; // the power to be sent to the drivetrain
-    double prevMotorPower = 0; // the value of motorPower at last cycle
-    double slew = 0; // the maximum change in velocity
+    double error = goal - (imu1.get_rotation() + imu2.get_rotation())/2; /**< calculate the error */
+    double prevError = error; /**< the value of error at last cycle */
+    double derivative = error - prevError; /**< the change in error since last cycle */
+    double totalError = 0; /**< the total error since the start of the function */
+    double motorPower = 0; /**< the power to be sent to the drivetrain */
+    double prevMotorPower = 0; /**< the value of motorPower at last cycle */
+    double slew = 0; /**< the maximum change in velocity */
 
+    /**< main loop */
     for (int time = 0; time < maxTime; time+=10) {
 
-        // calculate stuff
-        error = goal - (imu1.get_rotation() + imu2.get_rotation())/2;; // calculate error
-        derivative = error - prevError; // calculate derivative
-        prevError = error; // update prevError
-        totalError += error; // calculate error
-        slew += kJ;
-        motorPower = error * kP + totalError * kI + derivative * kD; // calculate motor power
+        /** calculate variables */
+        error = goal - (imu1.get_rotation() + imu2.get_rotation())/2;; /**< calculate error     */
+        derivative = error - prevError; /**< calculate derivative                               */
+        prevError = error; /**< update prevError                                                */
+        totalError += error; /**< calculate total error                                         */
+        slew += kJ; /**< update acceleration                                                    */
+        motorPower = error * kP + totalError * kI + derivative * kD; /**< calculate motor power */
 
-        // break out of the loop if necessary
+        /** break out of the loop if necessary */
         if (fabs(error) < 1) {
             break;
         }
 
-        // spin the motors
+        /** spin the motors */
         moveLeftDrivetrain(motorPower);
         moveRightDrivetrain(-motorPower);
-        
+
+        /** delay to prevent all resources from being used */
         pros::delay(10);
     }
+    /** stop all motors on the drivetrain */
     stopDrivetrain();
 }
 
 
-
-
-
-// front vision sensor interpolator. This function interpolates the values of centerX for the front vision sensor since it is off-center from the mobile goal
-int yInterpolator(double xValue) {
-
-    // variables
-    double closestLowX = 0;
-    double closestHighX = 0;
-    double closestLowY = 0;
-    double closestHighY = 0;
-    double finalOutput = 0;
-    double slope = 0;
-    std::vector<double> inputX = {300, 400, 500, 600, 700, 800, 900, 1000, 1100};
-    std::vector<double> inputY = {206, 204, 200, 197, 195, 192, 190, 187, 185};
-
-    // find the 2 closest points
-    for (int i = 0; i < inputX.size(); i++) {
-        // if the point is greater than closestLowX and less than xValue
-        if (inputX.at(i) > closestLowX && inputX.at(i) < xValue) {
-            closestLowX = inputX.at(i);
-            closestLowY = inputY.at(i);
-        // else if the value is greater than xValue, save it and break out of the loop
-        } else if (inputX.at(i) > xValue) {
-            closestHighX = inputX.at(i);
-            closestHighY = inputY.at(i);
-            break;
-        // else if the xValue is equal to the current x value in the vector
-        } else if (inputX.at(i) == xValue) {
-            finalOutput = inputY.at(i);
-            break;
-        }
-    }
-
-    // check whether it should interpolate or not
-    if (xValue > inputX.at(inputX.size()-1)) {
-        finalOutput = inputY.at(inputY.size()-1);
-    }
-
-    // calculate the slope, if necessary
-    if (finalOutput == 0) {
-        slope = (closestHighY - closestLowY)/(closestHighX - closestLowX);
-        finalOutput = slope * (xValue - closestHighX) + closestHighY;
-    }
-  
-    // return the rounded finalOutput value
-    return std::round(finalOutput) - 158;
-}
-
-
-
-// vision tracking functions
+/**
+ * @brief function that aligns the robot with a tracked object
+ * 
+ * @param sigID signature ID number 
+ * @param sig pointer to the signature
+ * @param turnKP proportional
+ * @param timeout timeout
+ *
+ */
 void forwardVisionTracking(int sigID, pros::vision_signature_s_t* sig, double turnKP, double timeout) 
 {
-    // set the signature ID and signature object
+    /** set the signature ID and signature object */
     frontVision.set_signature(sigID, sig);
 
-    // set the zero point for the front vision sensor
+    /** set the zero point for the front vision sensor */
     frontVision.set_zero_point(pros::E_VISION_ZERO_CENTER);
 
-    // initialize variables for turn PID
+    /** initialize variables for turn PID */
     double error = 0;
     double motorPower = 0;
 
+    /** timestamp of when the function started */
     double startTime = pros::millis();
 
+    /** main loop */
     while (true) {
+        /** get the tracked object data */
         pros::vision_object_s_t trackedSig = frontVision.get_by_sig(0, sigID);
         
-        // if the distance sensor senses the mogo
+        /** if the distance sensor senses the mogo */
         error = 15 - trackedSig.x_middle_coord;
 
+        /** break out of the loop if necessary */
         if (pros::millis() - startTime > timeout) {
             break;
         }
         
+        /** calculate the power at which to spins the motors */
         motorPower = error * turnKP;
 
+        /** spin the motors */
         moveLeftDrivetrain(-motorPower);
         moveRightDrivetrain(motorPower);
 
+        /** delay to prevent all resources from being used */
         pros::delay(10);
     }
+    /** stop all motors on the drivetrain */
     stopDrivetrain();
-    pros::lcd::print(7, "error: %f", error);
 }
 
 
-
-// vision tracking functions
+/**
+ * @brief function that aligns the robot with a tracked object
+ * 
+ * @param sigID signature ID number 
+ * @param sig pointer to the signature
+ * @param turnKP proportional
+ * @param timeout timeout
+ *
+ */
 void backVisionTracking(int sigID, pros::vision_signature_s_t* sig, double turnKP, double timeout) 
 {
-    // set the signature ID and signature object
+    /** set the signature ID and signature object */
     backVision.set_signature(sigID, sig);
 
-    // set the zero point for the front vision sensor
+    /** set the zero point for the front vision sensor */
     backVision.set_zero_point(pros::E_VISION_ZERO_CENTER);
 
-    // initialize variables for turn PID
+    /** initialize variables for turn PID */
     double error = 0;
     double motorPower = 0;
 
+    /** timestamp of when the function started */
     double startTime = pros::millis();
 
+    /** main loop */
     while (true) {
+        /** get the tracked object data */
         pros::vision_object_s_t trackedSig = backVision.get_by_sig(0, sigID);
         
-        // if the distance sensor senses the mogo
+        /** if the distance sensor senses the mogo */
         error = 15 - trackedSig.x_middle_coord;
 
+        /** break out of the loop if necessary */
         if (pros::millis() - startTime > timeout) {
             break;
         }
         
+        /** calculate the power at which to spins the motors */
         motorPower = error * turnKP;
 
+        /** spin the motors */
         moveLeftDrivetrain(-motorPower);
         moveRightDrivetrain(motorPower);
 
+        /** delay to prevent all resources from being used */
         pros::delay(10);
     }
+    /** stop all motors on the drivetrain */
     stopDrivetrain();
-    pros::lcd::print(7, "error: %f", error);
 }
 
 
-
-// back vision aligning function 
+/**
+ * @brief back vision align function
+ * 
+ * @param sigID signature ID number
+ * @param sig pointer to the signature
+ * @param turnKP proportional
+ * @param turnKI integral
+ * @param turnKD derivative
+ * @param maxTime timeout
+ *
+ */
 void back_vision_align(int sigID, pros::vision_signature_s_t* sig, double turnKP, double turnKI, double turnKD, double maxTime) 
 {
-    // set the signature ID and the signature object 
+    /** set the signature ID and signature object */
     backVision.set_signature(sigID, sig);
 
-    // set the zero point for the back vision sensor
+    /** set the zero point for the front vision sensor */
     backVision.set_zero_point(pros::E_VISION_ZERO_CENTER);
 
-    // initialize variables 
-    double error = 0;
-    double prevError = 0;
-    double derivative = error - prevError;
-    double totalError = 0;
-    double motorPower = 0;
+    /** initialize variables for turn PID */
+    double error = 0; /**< distance between the target and the robot  */
+    double prevError = 0; /**< the value of error at the last cycle   */
+    double derivative = error - prevError; /**< derivative            */
+    double totalError = 0; /**< total error                           */
+    double motorPower = 0; /**< the power at which to spin the motors */
 
-    // main loop
+    /** main loop */
     for (int i = 0; i < maxTime; i+=10) {
 
-        // update tracked object
+        /** get the tracked object data */
         pros::vision_object_s_t trackedSig = backVision.get_by_sig(0, sigID);
 
-        // update variables
+        /** update variables */
         error = 0 - trackedSig.x_middle_coord;
         derivative = error - prevError;
         prevError = error;
         totalError += error;
         motorPower = error * turnKP + totalError * turnKI + derivative * turnKD;
 
+        /** spin the motors */
         moveLeftDrivetrain(motorPower);
         moveRightDrivetrain(-motorPower);
 
+        /** delay so it does not starve the cpu of resources */
         pros::delay(10);
     }
+    /** stop the drivetrain if it has not stopped already */
+    stopDrivetrain();
 }
 
 
-
-// function that returns data, such as location and angle of an object tracked by a vision sensor
-signature visual_odometry(pros::vision_signature_s_t* trackedObject, double trackedObjectID, double trackedObjectWidth)
-{
-    // set the tracked object 
-    frontVision.set_signature(trackedObjectID, trackedObject);
-    // get info from the tracked objects
-    pros::vision_object_s_t trackedSig = backVision.get_by_sig(0, trackedObjectID);
-
-    // get the width of the tracked object
-    double width = trackedSig.width;
-    // get inches by pixel
-    double ipp = trackedObjectWidth/width;
-    // get the chord length 
-    double chordLength = ipp*316;
-
-    // divide the isosceles triangle into 2 right angle triangles, then find the adjacent
-    double deltaY = chordLength/tan(30.5*(M_PI/180));
-}
-
-
-
-// basic forward JIPD functions
+/**
+ * @brief function that moves the robot a number of inches relative to the robots position at the start of the function
+ * 
+ * @param goal how far the robot should move
+ * @param kJ how fast the robot can accelerate
+ * @param kP proportional
+ * @param kI integral
+ * @param kD derivative
+ * @param maxTime timeout
+ *
+ */
 void basicForwardJPID(double goal, double kJ, double kP, double kI, double kD, double maxTime) 
 {
-    // variables 
-    double startPos = sideTrackingWheel.get_value() * ((M_PI*2.75)/360);
-    double error = goal - sideTrackingWheel.get_value()*((M_PI*2.75)/360) + startPos;
-    double prevError = error;
-    double derivative = error - prevError;
+    /** variables */
+    double startPos = sideTrackingWheel.get_value() * ((M_PI*2.75)/360); /**< the position of the tracking wheel, in inches, at the start of the function (cannot tare the value of the tracking wheel cuz odom) */
+    double error = goal - sideTrackingWheel.get_value()*((M_PI*2.75)/360) + startPos; /**< calculate error                                                                                                       */
+    double prevError = error; /**< the value of error at the last cycle                                                                                                                                          */
+    double derivative = error - prevError; /** the change in error since the last cycle                                                                                                                          */
     double totalError = 0;
     double slew = kJ;
     double motorPower = error * kP + totalError * kI + derivative * kD;
