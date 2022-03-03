@@ -108,6 +108,13 @@ void autonomous ()
 	//right3G(&front_red_mogo_alderfeild, 1, &front_red_mogo_alderfeild, 1);
 	//left2G();
 	skillsAuto();
+	/*backClamp.set_value(true);
+	imu1.tare_roll();
+	imu2.tare_roll();
+	moveLeftDrivetrain(70);
+	moveRightDrivetrain(70);
+	pros::delay(2000);
+	balance(20, 15, 220);*/
 
 }
 

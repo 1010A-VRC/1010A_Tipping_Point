@@ -625,3 +625,36 @@ void basicForwardJPID(double goal, double kJ, double kP, double kI, double kD, d
     }
     stopDrivetrain();
 }
+
+
+// function used to balance the robot
+void balance(double speed, double target, double timeOffset)
+{    
+    double kP = 11;
+    double kI = 0;
+    double kD = 0;
+
+    double error = target - (imu1.get_roll() + -imu2.get_roll())/2;
+    double prevError = error;
+    double derivative = 0;
+    double totalError = error;
+    double motorPower = 0;
+
+    while (true) {
+        error = target - (imu1.get_roll() + -imu2.get_roll())/2;
+        derivative = error - prevError;
+        prevError = error;
+        totalError += error;
+        motorPower = error*kP + totalError*kI + derivative*kD;
+        
+        if (error < 0) {
+            moveLeftDrivetrain(-motorPower);
+            moveRightDrivetrain(-motorPower);
+        } else {
+            stopDrivetrain();
+        }
+
+        pros::delay(10);
+    }
+
+}
