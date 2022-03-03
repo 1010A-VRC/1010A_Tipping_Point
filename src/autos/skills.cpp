@@ -40,46 +40,55 @@ void skillsAuto()
     turnJPID2(180, 0, 1.6, 0, 0, 1500);
     turnJPID2(180, 0, 8, 0, 0, 1500);
     // go forwards
-    basicForwardJPID(35, 3, 6, 0, 0, 2000);
+    basicForwardJPID(32, 3, 6, 0, 0, 2000);
 
     // turn left
     turnJPID2(90, 0, 2, 0, 0, 1500);
     turnJPID2(90, 0, 12, 0, 0, 1500);
     // go forward a little bit
-    basicForwardJPID(17.5, 3, 6, 0, 0, 1000);
-    // move the lift down to balance the ramp
+    basicForwardJPID(14.25, 3, 6, 0, 0, 1000);
+    // move the lift down to balance the ramp (first mogo on the ramp)
     moveLift(6000, 1, 0, 0, 3000);
+
+    delay(1000);
     // unclamp 
     frontClamp.set_value(true);
     // go back a little bit 
-    basicForwardJPID(-7, 3, 7.5, 0, 0, 1000);
+    basicForwardJPID(-3, 3, 7.5, 0, 0, 1000);
 
     // move the lift up 
     moveLift(11700, 1, 0, 0, 3000);
+
+    //finish going backwards
+    basicForwardJPID(-4, 3, 7.5, 0, 0, 1000);
     pros::delay(250);
+
     // go back some more while putting the lift down
     pros::Task lambdaTask3{[=] { moveLift(0, 1, 0, 0, 3000); }};
-    basicForwardJPID(-15, 3, 6, 0, 0, 1000);
+    basicForwardJPID(-13, 3, 6, 0, 0, 1000);
+
+    turnJPID2(100, 0, 1.3, 0, 0, 3000);
+    turnJPID2(100, 0, 4, 0, 0, 3000);
     // unclamp the back 
     backClamp.set_value(false);
     // go forward a little bit
     basicForwardJPID(10, 3, 6, 0, 0, 1000);
 
     // turn to face the back mogo
-    turnJPID2(270, 0, 1.3, 0, 0, 3000);
-    turnJPID2(270, 0, 8, 0, 0, 3000);
+    turnJPID2(280, 0, 1.3, 0, 0, 3000);
+    turnJPID2(280, 0, 4, 0, 0, 3000);
     // go forward to clamp the mogo
     forwardJPIDfrontDistance(4, 0, 0, 1, 0.4, 0, 0, 1500);
     frontClamp.set_value(false);
-    basicForwardJPID(-2, 3, 6, 0, 0, 1000);
+    basicForwardJPID(-5, 3, 6, 0, 0, 1000);
 
     // turn to face the ramp while lifting up the mogo
     pros::Task lambdaTask4{[=] { moveLift(11700, 1, 0, 0, 3000); }};
     turnJPID2(100, 0, 1.3, 0, 0, 1500);
-    turnJPID2(100, 0, 8, 0, 0, 1500);
+    turnJPID2(100, 0, 4, 0, 0, 1500);
 
     // go forward a little bit
-    basicForwardJPID(23, 3, 6, 0, 0, 1000);
+    basicForwardJPID(20, 3, 6, 0, 0, 1000);
     // move the lift down to balance the ramp
     moveLift(6000, 1, 0, 0, 3000);
     // unclamp 
@@ -90,6 +99,8 @@ void skillsAuto()
     // move the lift up 
     moveLift(11700, 1, 0, 0, 3000);
 
+    delay(50);
+
     // go back a little bit 
     basicForwardJPID(-7, 3, 7.5, 0, 0, 1000);
     /*
@@ -99,115 +110,96 @@ void skillsAuto()
     pros::delay(250);
     // go back some more while putting the lift down
     pros::Task lambdaTask5{[=] { moveLift(0, 1, 0, 0, 3000); }};
+
+    
     basicForwardJPID(-15, 3, 6, 0, 0, 1000);
 
-    // turn to face the back mogo
+    // turn to face the tall mogo
     turnJPID2(255, 0, 1.3, 0, 0, 3000);
     turnJPID2(255, 0, 4, 0, 0, 3000);
-    forwardJPIDfrontDistance(4, 0, 0, 1, 0.4, 0, 0, 1500);
+    forwardJPIDfrontDistance(4, 0, 0, 1, 0.75, 0, 0, 1500);
+
+    //decrease sussiness with the delay 
+    delay(100);
     frontClamp.set_value(false);
 
     
     // turn to face the ramp while lifting up the mogo just a little so the mogo doesn't touch the ground
     pros::Task lambdaTask6{[=] { moveLift(2000, 1, 0, 0, 3000); }};
-    turnJPID2(80, 0, 1.3, 0, 0, 1500);
-    turnJPID2(80, 0, 6, 0, 0, 1500);
+    turnJPID2(67, 0, 1.3, 0, 0, 1500);
+    turnJPID2(67, 0, 4, 0, 0, 1500);
     // prepare the arm to put the mogo down 
     moveLift(11700, 1, 0, 0, 3000);
     //go forward to put the mogo down 
-    basicForwardJPID(40, 3, 6, 0, 0, 1000);
+    basicForwardJPID(20, 3, 6, 0, 0, 1000);
+    basicForwardJPID(20, 3, 6, 0, 0, 1000);
     delay(50);
-    basicForwardJPID(10, 3, 6, 0, 0, 1000);
+    basicForwardJPID(15, 3, 6, 0, 0, 1000);
     // move the lift down so it is slightly above the ramp
     moveLift(7500, 1, 0, 0, 3000);
 
     // turn to the right to make space for the tall neutral mogo
     turnJPID2(160, 0, 1.3, 0, 0, 1500);
-    turnJPID2(160, 0, 6, 0, 0, 1500);
+    turnJPID2(160, 0, 4, 0, 0, 1500);
     // turn to the left 
-    turnJPID2(110, 0, 1.3, 0, 0, 1500);
-    turnJPID2(110, 0, 6, 0, 0, 1500);
+    turnJPID2(140, 0, 1.3, 0, 0, 1500);
+    turnJPID2(140, 0, 4, 0, 0, 1500);
     // give the robot a chance to lose all its momentum
     delay(500);
+
+    basicForwardJPID(3, 3, 6, 0, 0, 1000);
+
+    moveLift(6000, 1, 0, 0, 3000);
     // release the tall neutral mogo
-    frontClamp.set_value(false);
+    frontClamp.set_value(true);
+    delay(200);
+
+    basicForwardJPID(-5, 3, 6, 0, 0, 1000);
+    moveLift(10000, 1, 0, 0, 3000);
+    basicForwardJPID(-10, 3, 6, 0, 0, 1000);
+    moveLift(0, 1, 0, 0, 3000);
+    
+    //---------------------------------------------------------------------------------//
+    //-----------------------------------1st section-----------------------------------//
+    //---------------------------------------------------------------------------------//
 
     
+    //face the blue mogo on the alliance diagonal line
+    turnJPID2(175, 0, 1.3, 0, 0, 1500);
+    turnJPID2(175, 0, 1.3, 0, 0, 1500);
+
+    //clamp blue mogo
+    backwardJPIDbackDistance(-118, 0, 0, 0.1, 0.2, 0.00006, 0, 1300);
+    backClamp.set_value(true);
+
+    delay(150);
+
+    //go a bit forward to align with the mogo
+    basicForwardJPID(5, 3, 6, 0, 0, 1000);
+
+    //Last Neutral Mogo robot heading
+    turnJPID2(200, 0, 1.3, 0, 0, 1500);
+    turnJPID2(200, 0, 4, 0, 0, 1500);
+
+    
+    //go towards the last neutral mogo and stopping where there are a lot of ring accumulations 
+    basicForwardJPID(50, 3, 6, 0, 0, 1000);
 
     /*
-    // correct heading
-    forwardVisionTracking(1, &f_y_mogo_sit, 0.8, 3500);
-    // grab the neutral mogo
-    forwardJPIDfrontDistance(10, 0, 0, 1, 0.24, 0, 0, 2500); // 0.22
-    // clamp the mogo
+    // turning +/- 20 degree to get rid of rings in the middle of the path to the last neutral mogo
+    turnJPID2(230, 0, 1.3, 0, 0, 1500);
+    turnJPID2(230, 0, 4, 0, 0, 1500);
+
+    turnJPID2(250, 0, 1.3, 0, 0, 1500);
+    turnJPID2(250, 0, 4, 0, 0, 1500);
+
+    //make the robot head towards the last neutral mogo after clearing the rings
+    turnJPID2(210, 0, 1.3, 0, 0, 1500);
+    turnJPID2(210, 0, 4, 0, 0, 1500);
+    */
+
+    //Go to the last neutral mogo and clamp it
+    forwardJPIDfrontDistance(4, 0, 0, 1, 0.75, 0, 0, 4000);
     frontClamp.set_value(false);
-
-    // lift up the mogo
-    moveLift(11700, 1, 0, 0, 3000);
-    // turn left to face the ramp
-    turnJPID2((imu1.get_rotation()+imu2.get_rotation())/2+33.5, 0, 1.5, 0, 0, 2000);
-    // go towards the ramp while dropping the alliance mogo
-    pros::Task lambdaTask2{[=] { pros::delay(700); backClamp.set_value(false); }};
-    basicForwardJPID(60, 1, 6, 0, 0, 2000);
-    // move down the lift
-    moveLift(6500, 1, 0, 0, 3000);
-    // unclamp the mogo
-    frontClamp.set_value(true);
-
-    // reverse a bit
-    basicForwardJPID(-3, 1, 10, 0, 0, 500);
-    // put up the lift 
-    moveLift(11700, 1, 0, 0, 3000);
-    // reverse 10 inches while putting down the lift
-    pros::Task lambdaTask3{[=] { moveLift(0, 1, 0, 0, 4000); }};
-    basicForwardJPID(-10, 1, 6, 0, 0, 1000);
-    // turn to face the blue mogo
-    turnJPID2((imu1.get_rotation() + imu2.get_rotation())/2 - 170, 0, 1, 0, 0, 2000);
-    // delay for 500 ms
-    pros::delay(500);
-    // correct heading with the vision sensor 
-    forwardVisionTracking(1, &f_b_mogo_sit, 0.7, 2500);
-    // go and pick up the alliance mogo
-    forwardJPIDfrontDistance(10, 0, 0, 1, 0.28, 0, 0, 2500); // 0.22
-    // clamp the mogo
-    frontClamp.set_value(false);
-
-    // move up the lift
-    moveLift(11700, 1, 0, 0, 3000);
-    // turn towards the ramp
-    turnJPID2((imu1.get_rotation() + imu2.get_rotation())/2 - 175, 0, 1, 0, 0, 2000);
-    // go towards the ramp
-    basicForwardJPID(60, 1, 6, 0, 0, 2000);
-    // move down the lift
-    moveLift(7000, 1, 0, 0, 3000);
-    // unclamp the mogo
-    frontClamp.set_value(true);
-    // reverse a bit
-    basicForwardJPID(-3, 1, 10, 0, 0, 500);
-    // put up the lift 
-    moveLift(11700, 1, 0, 0, 3000);
-    // reverse 10 inches while putting down the lift
-    pros::Task lambdaTask4{[=] { moveLift(0, 1, 0, 0, 4000); }};
-    basicForwardJPID(-10, 1, 6, 0, 0, 1000);
-
-    // turn right so the back of the robot is facing the red alliance mobile goal
-    turnJPID2(180, 0, 2, 0, 0, 2000);
-    // align with the red mogo
-    backVisionTracking(1, &back_red_mogo_alderfeild, 0.75, 600);
-    // clamp the red alliance mogo
-    backwardJPIDbackDistance(-118, 0, 0, 0.1, 0.2, 0.00006, 0, 4250);
-    backClamp.set_value(true);
-    pros::delay(100);
-
-    // go forward as part of getting the other neutral alliance mogo 
-    basicForwardJPID(65, 1, 6, 0, 0, 2000);
-    // turn right to face the yellow neutral mogo
-    turnJPID2((imu1.get_rotation() + imu2.get_rotation())/2 + 50, 0, 1, 0, 0, 2000);
-    // correct the heading with the vision sensor
-    forwardVisionTracking(1, &f_y_mogo_sit, 0.75, 2500);
-    // grab the neutral mogo
-    forwardJPIDfrontDistance(10, 0, 0, 1, 0.24, 0, 0, 2500); // 0.22
-    // clamp the mogo
-    frontClamp.set_value(false); */
 
 }
