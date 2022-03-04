@@ -106,8 +106,8 @@ void competition_initialize ()
 void autonomous () 
 {
 	//right3G(&front_red_mogo_alderfeild, 1, &front_red_mogo_alderfeild, 1);
-	//left2G();
-	skillsAuto();
+	left2G();
+	//skillsAuto();
 	/*backClamp.set_value(true);
 	imu1.tare_roll();
 	imu2.tare_roll();
@@ -142,15 +142,23 @@ void flipout() {
  * task, not resume it from where it left off.
  *
  */
+
+pros::Task* drivetrainControl = nullptr;
+pros::Task* frontLiftControl = nullptr;
+pros::Task* frontClampControl = nullptr;
+pros::Task* backClampControl = nullptr;
+pros::Task* driveToggle = nullptr;
+pros::Task* conveyorControl = nullptr;
+
 void opcontrol () 
 {
 	/** create tasks for drivetrain control */
 	//pros::Task ringGuideFlipout(flipout);
-	pros::Task drivetrainControl(user_control::drivetrain_control); /**< task controlling the drivetrain 						*/
-	pros::Task frontLiftControl(user_control::front_lift_control); /**< task controlling the front lift 						*/
-	pros::Task frontClampControl(user_control::front_clamp_control); /**< task controlling the front clamp 						*/
-	pros::Task backClampControl(user_control::back_clamp_control); /**< task controlling the back clamp							*/
-	pros::Task drivetoggle(user_control::driveToggle);
-	pros::Task conveyorControl(user_control::conveyor_control); /**< task controlling the conveyor 								*/
+	if (drivetrainControl == nullptr) { drivetrainControl = new pros::Task(user_control::drivetrain_control); } /**< task controlling the drivetrain 						*/
+	if (frontLiftControl == nullptr) { frontLiftControl = new pros::Task(user_control::front_lift_control); } /**< task controlling the front lift 						    */
+	if (frontClampControl == nullptr) { frontClampControl = new pros::Task(user_control::front_clamp_control); } /**< task controlling the front clamp 						*/
+	if (backClampControl == nullptr) {backClampControl = new pros::Task(user_control::back_clamp_control); } /**< task controlling the back clamp							*/
+	if (driveToggle == nullptr) { driveToggle = new pros::Task(user_control::driveToggle); } /**< task controlling the brake mode of the drivetrain                         */
+	if (conveyorControl == nullptr) { conveyorControl = new pros::Task(user_control::conveyor_control); } /**< task controlling the conveyor 								*/
 
 }

@@ -65,14 +65,14 @@ void skillsAuto()
 
     // go back some more while putting the lift down
     pros::Task lambdaTask3{[=] { moveLift(0, 1, 0, 0, 3000); }};
-    basicForwardJPID(-13, 3, 6, 0, 0, 1000);
+    basicForwardJPID(-11, 3, 6, 0, 0, 1000); //used to be -13 but changed to prevent the robot from moving
 
     turnJPID2(100, 0, 1.3, 0, 0, 3000);
     turnJPID2(100, 0, 4, 0, 0, 3000);
     // unclamp the back 
     backClamp.set_value(false);
     // go forward a little bit
-    basicForwardJPID(10, 3, 6, 0, 0, 1000);
+    basicForwardJPID(10, 3, 6, 0, 0, 1000); //used to be 10 but supposed to be 8 but made it 10 to appraoch more
 
     // turn to face the back mogo
     turnJPID2(280, 0, 1.3, 0, 0, 3000);
@@ -112,7 +112,7 @@ void skillsAuto()
     pros::Task lambdaTask5{[=] { moveLift(0, 1, 0, 0, 3000); }};
 
     
-    basicForwardJPID(-15, 3, 6, 0, 0, 1000);
+    basicForwardJPID(-13, 3, 6, 0, 0, 1000); //used to be -15 but changed to -13 to prevent the robot from touching the tall mogo with back
 
     // turn to face the tall mogo
     turnJPID2(255, 0, 1.3, 0, 0, 3000);
@@ -151,8 +151,8 @@ void skillsAuto()
 
     moveLift(6000, 1, 0, 0, 3000);
     // release the tall neutral mogo
+    delay(1000);
     frontClamp.set_value(true);
-    delay(200);
 
     basicForwardJPID(-5, 3, 6, 0, 0, 1000);
     moveLift(10000, 1, 0, 0, 3000);
@@ -166,7 +166,7 @@ void skillsAuto()
     
     //face the blue mogo on the alliance diagonal line
     turnJPID2(175, 0, 1.3, 0, 0, 1500);
-    turnJPID2(175, 0, 1.3, 0, 0, 1500);
+    turnJPID2(175, 0, 4, 0, 0, 1500);
 
     //clamp blue mogo
     backwardJPIDbackDistance(-118, 0, 0, 0.1, 0.2, 0.00006, 0, 1300);
@@ -174,6 +174,18 @@ void skillsAuto()
 
     delay(150);
 
+    turnJPID2(180, 0, 1.3, 0, 0, 1500);
+    turnJPID2(180, 0, 4, 0, 0, 1500);
+
+    basicForwardJPID(92, 3, 4.5, 0, 0, 2000);
+
+    turnJPID2(270, 0, 1.3, 0, 0, 1500);
+    turnJPID2(270, 0, 4, 0, 0, 1500);
+
+    //---------------------------------------------------------------------------//
+    //-------------directly aligning with the far neutral mogo-------------------//
+    //---------------------------------------------------------------------------//
+    /*
     //go a bit forward to align with the mogo
     basicForwardJPID(5, 3, 6, 0, 0, 1000);
 
@@ -183,9 +195,9 @@ void skillsAuto()
 
     
     //go towards the last neutral mogo and stopping where there are a lot of ring accumulations 
-    basicForwardJPID(50, 3, 6, 0, 0, 1000);
+    basicForwardJPID(50, 3, 6, 0, 0, 2000);
 
-    /*
+    
     // turning +/- 20 degree to get rid of rings in the middle of the path to the last neutral mogo
     turnJPID2(230, 0, 1.3, 0, 0, 1500);
     turnJPID2(230, 0, 4, 0, 0, 1500);

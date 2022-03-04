@@ -14,7 +14,7 @@ void left2G()
     // deactivate the front clamp
     pros::Task lambdaTask1{[=] { frontClamp.set_value(true); }};
     // go forward 
-    forwardJPIDfrontDistance(4, 1400, 400, 100, 0.22, 0.00001, 0, 2000); // 0.22
+    forwardJPIDfrontDistance(4, 1400, 400, 100, 0.3, 0.001, 0, 2000); // 0.22
     // activate the clamp
     frontClamp.set_value(false);
 
