@@ -73,7 +73,7 @@ void skillsAuto()
     // unclamp the back 
     backClamp.set_value(false);
     // go forward a little bit
-    basicForwardJPID(10, 3, 6, 0, 0, 1000); //used to be 10 but supposed to be 8 but made it 10 to appraoch more
+    basicForwardJPID(10, 3, 6, 0, 0, 1000); //used to be 10 but supposed to be 8 but made it 10 to appaoch more
 
     // turn to face the back mogo
     turnJPID2(280, 0, 1.3, 0, 0, 3000);

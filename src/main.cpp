@@ -108,7 +108,7 @@ void autonomous ()
 	//right3G(&front_red_mogo_alderfeild, 1, &front_red_mogo_alderfeild, 1);
 	//left2G();
 	//skillsAuto();
-	//forwardVisionTracking(6, &f_y_mogo_sit, 1, 3000);
+	frontVisionAlign2(1, &f_y_mogo_ald_up, 0, 5, 250, 4, 30, 100000);
 	/*backClamp.set_value(true);
 	imu1.tare_roll();
 	imu2.tare_roll();
@@ -116,9 +116,6 @@ void autonomous ()
 	moveRightDrivetrain(70);
 	pros::delay(2000);
 	balance(20, 15, 220);*/
-
-	frontClamp.set_value(true);
-	forwardVisionTracking(1, &f_y_mogo_ald_up, 0, 0, 0.75, 0, 0, 0, 0.05, 0, 0, 0, 0, 130000);
 
 }
 

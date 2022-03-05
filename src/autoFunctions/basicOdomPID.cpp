@@ -479,32 +479,13 @@ void forwardVisionTracking(int sigID, pros::vision_signature_s_t* sig, double tu
     // set the signature ID and signature object
     frontVision.set_signature(sigID, sig);
 
-    // set the zero point for the front vision sensor
-    frontVision.set_zero_point(pros::E_VISION_ZERO_CENTER);
-
-    // initialize variables for turn PID
-    double error = 0;
-    double motorPower = 0;
-
-    double startTime = pros::millis();
-
     while (true) {
+        // the object the vision sensor detected 
         pros::vision_object_s_t trackedSig = frontVision.get_by_sig(0, sigID);
-        
-        // if the distance sensor senses the mogo
-        error = 15 - trackedSig.x_middle_coord;
-
-        if (pros::millis() - startTime > timeout) {
-            break;
-        }
-        
-        motorPower = error * turnKP;
-
-        moveLeftDrivetrain(-motorPower);
-        moveRightDrivetrain(motorPower);
-
+        pros::lcd::print(7, "center x: %d", trackedSig.x_middle_coord);
         pros::delay(10);
     }
+    
     stopDrivetrain();
 }
 
@@ -720,5 +701,61 @@ void forwardVisionTracking(int sigID, pros::vision_signature_s_t* sig, double tu
         pros::delay(10);
     }
 
+    stopDrivetrain();
+}
+
+
+// secondary function the align the robot using the vision sensor
+void frontVisionAlign2(int sigID, pros::vision_signature_s_t* sig, double goal, double range, double breakTime, double kP, double maxSpeed, double timeout) {
+
+    // set the signature ID and signature object
+    frontVision.set_signature(1, &f_y_mogo_ald_up);
+    // set the zero point for the front vision sensor
+    frontVision.set_zero_point(pros::E_VISION_ZERO_CENTER);
+    // the object the vision sensor detected 
+    pros::vision_object_s_t trackedSig = frontVision.get_by_sig(0, sigID);
+
+    // variables used for the PID
+    double error = 0;
+    double motorPower = error * kP;
+    double prevMotorPower = 0;
+    bool inRange = false;
+    double rangeStart = 0;
+
+    // main loop
+	for (int time = 0; time < timeout; time+=10) {
+        // update tracked object
+		trackedSig = frontVision.get_by_sig(0, sigID);
+
+        // calculate variables
+        error = goal - trackedSig.x_middle_coord;
+        motorPower = error * kP;
+
+        if (motorPower > maxSpeed) {
+            motorPower = maxSpeed;
+        } else if (motorPower < -maxSpeed) {
+            motorPower = -maxSpeed;
+        }
+
+        if (fabs(error) < range) {
+            if (inRange == false) {
+                inRange = true;
+                rangeStart = time;
+            } else if (time - rangeStart > breakTime) {
+                break;
+            }
+        } else {
+            inRange = false;
+        }
+
+
+        // spin the motors
+        moveLeftDrivetrain(-motorPower);
+        moveRightDrivetrain(motorPower);
+
+		pros::lcd::print(7, "error: %f", error);
+
+		pros::delay(10);
+	}
     stopDrivetrain();
 }
