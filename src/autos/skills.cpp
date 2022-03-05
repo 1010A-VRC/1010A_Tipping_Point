@@ -28,9 +28,10 @@ void skillsAuto()
     forwardJPIDfrontDistance(4, 0, 0, 1, 0.18, 0, 0, 2000); // 0.22
     // clamp the neutral mobile goal 
     frontClamp.set_value(false); 
+    delay(50);
 
     // lift up the lift while turning to the right
-    pros::Task lambdaTask2{[=] { moveLift(11700, 1, 0, 0, 3000); }};
+    moveLift(11700, 1, 0, 0, 3000);
     turnJPID2(90, 0, 4, 0, 0, 2000);
     // spin the conveyor 
     conveyor.move(127);
@@ -115,8 +116,8 @@ void skillsAuto()
     basicForwardJPID(-13, 3, 6, 0, 0, 1000); //used to be -15 but changed to -13 to prevent the robot from touching the tall mogo with back
 
     // turn to face the tall mogo
-    turnJPID2(255, 0, 1.3, 0, 0, 3000);
-    turnJPID2(255, 0, 4, 0, 0, 3000);
+    turnJPID2(254, 0, 1.3, 0, 0, 3000);
+    turnJPID2(254, 0, 4, 0, 0, 3000);
     forwardJPIDfrontDistance(4, 0, 0, 1, 0.75, 0, 0, 1500);
 
     //decrease sussiness with the delay 
@@ -149,7 +150,7 @@ void skillsAuto()
 
     basicForwardJPID(3, 3, 6, 0, 0, 1000);
 
-    moveLift(6000, 1, 0, 0, 3000);
+    moveLift(6300, 1, 0, 0, 3000);
     // release the tall neutral mogo
     delay(1000);
     frontClamp.set_value(true);
@@ -213,5 +214,35 @@ void skillsAuto()
     //Go to the last neutral mogo and clamp it
     forwardJPIDfrontDistance(4, 0, 0, 1, 0.75, 0, 0, 4000);
     frontClamp.set_value(false);
+
+
+    //---------------------------------------------------------------------------------//
+    //----------------------------------last section-----------------------------------//
+    //---------------------------------------------------------------------------------//
+
+    moveLift(2000, 1, 0, 0, 3000);
+
+    basicForwardJPID(30, 3, 6, 0, 0, 2000);
+
+    turnJPID2(225, 0, 1.3, 0, 0, 1500);
+    turnJPID2(225, 0, 4, 0, 0, 1500);
+
+    basicForwardJPID(8, 3, 6, 0, 0, 2000);
+
+    turnJPID2(270, 0, 1.3, 0, 0, 1500);
+    turnJPID2(270, 0, 4, 0, 0, 1500);
+
+    moveLift(8000, 1, 0, 0, 3000);
+
+    basicForwardJPID(40, 3, 6, 0, 0, 2000);
+
+    turnJPID2(360, 0, 1.3, 0, 0, 1500);
+    turnJPID2(360, 0, 4, 0, 0, 1500);
+
+    basicForwardJPID(5, 3, 6, 0, 0, 2000);
+
+    moveLift(0, 1, 0, 0, 3000);
+
+    balance(20, 15, 2000); 
 
 }

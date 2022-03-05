@@ -50,7 +50,7 @@ void brain_screen::legacy_brain_display()
         pros::lcd::print(4, "Right Side Temperature: %f", brain_screen::average_temperature(&r1, &r2, &r3)); /**< print the right drivetrain motor temperatures */
         pros::lcd::print(5, "Conveyor Temperature: %f", conveyor.get_temperature()); /**< print the temperature of the conveyor motor             */
         pros::lcd::print(6, "Lift temperature: %f", lift.get_temperature()); /**< print the temperature of the lift motor                         */
-        pros::lcd::print(7, "pitch: %f", (imu1.get_roll() + -imu2.get_roll())/2);
+        //pros::lcd::print(7, "pitch: %f", (imu1.get_roll() + -imu2.get_roll())/2);
         /** delay to prevent RTOS freezing */
         pros::delay(15);
     }

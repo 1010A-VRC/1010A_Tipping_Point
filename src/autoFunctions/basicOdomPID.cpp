@@ -506,7 +506,6 @@ void forwardVisionTracking(int sigID, pros::vision_signature_s_t* sig, double tu
         pros::delay(10);
     }
     stopDrivetrain();
-    pros::lcd::print(7, "error: %f", error);
 }
 
 
@@ -656,5 +655,70 @@ void balance(double speed, double target, double timeOffset)
 
         pros::delay(10);
     }
+}
 
+
+// vision tracking functions
+void forwardVisionTracking(int sigID, pros::vision_signature_s_t* sig, double turnGoal, double turnCutoffDistance, double turnKP, double turnKI, double turnKD, double forwardGoal, double forwardKP, double forwardKI, double forwardKD, double expectedDistance, double clampOffset, double timeout) 
+{
+    // set the signature ID and signature object
+    frontVision.set_signature(sigID, sig);
+    // set the zero point for the front vision sensor
+    frontVision.set_zero_point(pros::E_VISION_ZERO_CENTER);
+    // the object the vision sensor detected 
+    pros::vision_object_s_t trackedSig = frontVision.get_by_sig(0, sigID);
+
+    // initialize variables for forward PID
+    double forwardError = forwardGoal - expectedDistance;
+    double forwardPrevError = forwardError;
+    double forwardDerivative = forwardError - forwardPrevError;
+    double forwardTotalError = 0;
+    double forwardMotorPower = forwardError*forwardKP + forwardTotalError*forwardKI + forwardDerivative*forwardKD;
+
+    // initialize variables for turn PID
+    double turnError = turnGoal - trackedSig.x_middle_coord;
+    double turnPrevError = turnError;
+    double turnDerivative = turnError - turnPrevError;
+    double turnTotalError = 0;
+    double turnMotorPower = turnError*turnKP + turnTotalError*turnKI + turnDerivative*turnKD;
+
+    // main loop
+    for (int time = 0; time < timeout; time+=10) {
+
+        // update vision sensor tracked object
+        trackedSig = frontVision.get_by_sig(0, sigID);
+
+        // calculate forward PID variables
+        if (time < clampOffset) {
+            forwardError = expectedDistance;
+        } else if (frontDistance.get() != 0) {
+            forwardError = forwardGoal - -frontDistance.get();
+        }
+        forwardDerivative = forwardError - forwardPrevError;
+        forwardPrevError = forwardError;
+        forwardTotalError += forwardError; 
+        forwardMotorPower = forwardError*forwardKP + forwardTotalError*forwardKI + forwardDerivative*forwardKD;
+
+        // calculate turn PID variables
+        if (false) {
+            turnMotorPower = 0;
+        } else {
+            turnError = turnGoal - trackedSig.x_middle_coord;
+            turnDerivative = turnError - turnPrevError;
+            turnPrevError = turnError;
+            turnTotalError += turnError;
+            turnMotorPower = turnError*turnKP + turnTotalError*turnKI + turnDerivative*turnKD;
+        }
+
+        // move the drivetrain
+        moveRightDrivetrain(forwardMotorPower + turnMotorPower);
+        moveLeftDrivetrain(forwardMotorPower - turnMotorPower);
+
+        pros::lcd::print(7, "forward error: %f", forwardError);
+        
+        // delay so RTOS does not freak out
+        pros::delay(10);
+    }
+
+    stopDrivetrain();
 }
