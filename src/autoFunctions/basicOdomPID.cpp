@@ -111,7 +111,65 @@ void forwardJPIDfrontDistance(double goal, double expectedDistance, double clamp
         motorPower = error * kP + totalError * kI + derivative * kD; // calculate motor power
 
         // break out of the loop if necessary
-        if (fabs(error) < 40) {
+        if (fabs(error) < 40 && time > 880) {
+            totalPower /= time/10;
+            pros::lcd::print(7, "average speed: %f", totalPower);
+            break;
+        }
+
+        // slew
+        if (motorPower - prevMotorPower < -slew) {
+            motorPower = prevMotorPower - slew;
+        }
+        prevMotorPower = motorPower;
+
+        // spin the motors
+        moveLeftDrivetrain(-motorPower);
+        moveRightDrivetrain(-motorPower);
+
+        printf("error: %f \r\n", error);
+        
+        pros::delay(10);
+    }
+    stopDrivetrain();
+}
+
+
+// forward PID using front distance sensor
+void specialForwardJPIDfrontDistance(double goal, double expectedDistance, double clampOffset, double kJ, double kP, double kI, double kD, double maxTime) 
+{
+    double error = 0; // calculate the error
+    double prevError = expectedDistance; // the value of error at last cycle
+    double derivative = error - prevError; // the change in error since last cycle
+    double totalError = 0; // the total error since the start of the function
+    double motorPower = 0; // the power to be sent to the drivetrain
+    double prevMotorPower = 0; // the value of motorPower at last cycle
+    double slew = kJ; // the maximum change in velocity
+
+    double totalPower = 0;
+
+    for (double time = 0; time < maxTime; time+=10) {
+
+        // calculate stuff
+        if (time < clampOffset) {
+            error = -expectedDistance;
+        } else {
+            if (frontDistance.get() < 5) {
+                error = prevError;
+            } else {
+                error = goal - frontDistance.get(); // calculate error
+            }
+        }
+
+        totalPower += (l1.get_actual_velocity()+l2.get_actual_velocity())/2;
+        derivative = error - prevError; // calculate derivative
+        prevError = error; // update prevError
+        totalError += error; // calculate error
+        slew += kJ;
+        motorPower = error * kP + totalError * kI + derivative * kD; // calculate motor power
+
+        // break out of the loop if necessary
+        if (fabs(error) < 40 && time > 880) {
             totalPower /= time/10;
             pros::lcd::print(7, "average speed: %f", totalPower);
             break;

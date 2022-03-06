@@ -49,7 +49,7 @@ void skillsAuto()
     // go forward a little bit
     basicForwardJPID(14.25, 3, 6, 0, 0, 1000);
     // move the lift down to balance the ramp (first mogo on the ramp)
-    moveLift(6000, 1, 0, 0, 3000);
+    moveLift(6500, 1, 0, 0, 3000);
 
     delay(1000);
     // unclamp 
@@ -116,17 +116,20 @@ void skillsAuto()
     basicForwardJPID(-13, 3, 6, 0, 0, 1000); //used to be -15 but changed to -13 to prevent the robot from touching the tall mogo with back
 
     // turn to face the tall mogo
-    turnJPID2(254, 0, 1.3, 0, 0, 3000);
-    turnJPID2(254, 0, 4, 0, 0, 3000);
-    forwardJPIDfrontDistance(4, 0, 0, 1, 0.75, 0, 0, 1500);
+    turnJPID2(262, 0, 1.3, 0, 0, 3000);
+    turnJPID2(262, 0, 4, 0, 0, 3000);
+    frontVisionAlign2(1, &f_y_mogo_board, 0, 2.5, 250, 4, 20, 2000);
+    delay(500);
+    forwardJPIDfrontDistance(4, 0, 0, 1, 0.25, 0, 0, 1500);
 
     //decrease sussiness with the delay 
     delay(100);
     frontClamp.set_value(false);
 
+    delay(500);
     
     // turn to face the ramp while lifting up the mogo just a little so the mogo doesn't touch the ground
-    pros::Task lambdaTask6{[=] { moveLift(2000, 1, 0, 0, 3000); }};
+    moveLift(2000, 1, 0, 0, 3000);
     turnJPID2(67, 0, 1.3, 0, 0, 1500);
     turnJPID2(67, 0, 4, 0, 0, 1500);
     // prepare the arm to put the mogo down 
@@ -213,9 +216,15 @@ void skillsAuto()
 
     //Go to the last neutral mogo and clamp it
     forwardJPIDfrontDistance(4, 0, 0, 1, 0.75, 0, 0, 4000);
+
+    delay(250);
+
     frontClamp.set_value(false);
 
 
+
+
+    /*
     //---------------------------------------------------------------------------------//
     //----------------------------------last section-----------------------------------//
     //---------------------------------------------------------------------------------//
@@ -232,9 +241,11 @@ void skillsAuto()
     turnJPID2(270, 0, 1.3, 0, 0, 1500);
     turnJPID2(270, 0, 4, 0, 0, 1500);
 
-    moveLift(8000, 1, 0, 0, 3000);
+    moveLift(10000, 1, 0, 0, 3000);
 
     basicForwardJPID(40, 3, 6, 0, 0, 2000);
+
+    basicForwardJPID(-5, 3, 6, 0, 0, 2000);
 
     turnJPID2(360, 0, 1.3, 0, 0, 1500);
     turnJPID2(360, 0, 4, 0, 0, 1500);
@@ -243,6 +254,76 @@ void skillsAuto()
 
     moveLift(0, 1, 0, 0, 3000);
 
+    basicForwardJPID(15, 3, 6, 0, 0, 2000);
+
     balance(20, 15, 2000); 
+    */
+
+    // lift up the lift while turning to the right
+    moveLift(11700, 1, 0, 0, 3000);
+    turnJPID2(270, 0, 4, 0, 0, 2000);
+    // spin the conveyor 
+    conveyor.move(127);
+    // go towards some of the rings
+    basicForwardJPID(15, 3, 6, 0, 0, 2000);
+    // turn right
+    turnJPID2(360, 0, 1.6, 0, 0, 1500);
+    turnJPID2(360, 0, 8, 0, 0, 1500);
+    // go forwards
+    basicForwardJPID(42, 3, 6, 0, 0, 2000);
+
+    // turn left
+    turnJPID2(270, 0, 2, 0, 0, 1500);
+    turnJPID2(270, 0, 12, 0, 0, 1500);
+    // go forward a little bit
+    basicForwardJPID(9.25, 3, 6, 0, 0, 1000);
+    // move the lift down to balance the ramp (first mogo on the ramp)
+    moveLift(6500, 1, 0, 0, 3000);
+
+    delay(1000);
+    // unclamp 
+    frontClamp.set_value(true);
+    // go back a little bit 
+    basicForwardJPID(-3, 3, 7.5, 0, 0, 1000);
+
+    // move the lift up 
+    moveLift(11700, 1, 0, 0, 3000);
+
+    //finish going backwards
+    basicForwardJPID(-4, 3, 7.5, 0, 0, 1000);
+    pros::delay(250);
+
+    // go back some more while putting the lift down
+    pros::Task lambdaTask6{[=] { moveLift(0, 1, 0, 0, 3000); }};
+    basicForwardJPID(-11, 3, 6, 0, 0, 1000); //used to be -13 but changed to prevent the robot from moving
+
+    turnJPID2(280, 0, 1.3, 0, 0, 3000);
+    turnJPID2(280, 0, 4, 0, 0, 3000);
+    // unclamp the back 
+    backClamp.set_value(false);
+    // go forward a little bit
+    basicForwardJPID(10, 3, 6, 0, 0, 1000); //used to be 10 but supposed to be 8 but made it 10 to appaoch more
+
+    // turn to face the back mogo
+    turnJPID2(100, 0, 1.3, 0, 0, 3000);
+    turnJPID2(100, 0, 4, 0, 0, 3000);
+    // go forward to clamp the mogo
+    forwardJPIDfrontDistance(4, 0, 0, 1, 0.4, 0, 0, 1500);
+    frontClamp.set_value(false);
+    basicForwardJPID(-5, 3, 6, 0, 0, 1000);
+
+    // turn to face the ramp while lifting up the mogo
+    pros::Task lambdaTask7{[=] { moveLift(11700, 1, 0, 0, 3000); }};
+    turnJPID2(280, 0, 1.3, 0, 0, 1500);
+    turnJPID2(280, 0, 4, 0, 0, 1500);
+
+    // go forward a little bit
+    basicForwardJPID(20, 3, 6, 0, 0, 1000);
+    // move the lift down to balance the ramp
+    moveLift(6000, 1, 0, 0, 3000);
+    // unclamp 
+    frontClamp.set_value(true);
+
+    basicForwardJPID(-10, 3, 6, 0, 0, 1000);
 
 }

@@ -81,6 +81,8 @@ extern pros::vision_signature_s_t f_r_mogo_sit; /**< red mogo for the front visi
 extern pros::vision_signature_s_t f_b_mogo_sit; /**< blue mogo for the front vision sensor at the Situation field   */
 extern pros::vision_signature_s_t f_y_mogo_sit; /**< yellow mogo for the front vision sensor at the Situation field */
 
+extern pros::vision_signature_s_t f_y_mogo_board;
+
 /**
  * @brief Back vision sensor signatures
  * 
