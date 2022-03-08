@@ -506,12 +506,12 @@ void turnJPID(double goal, double kJ, double kP, double kI, double kD, double ma
 void turnJPID2(double goal, double kJ, double kP, double kI, double kD, double maxTime) 
 {
     double error = goal - (imu1.get_rotation() + imu2.get_rotation())/2; /**< calculate the error */
-    double prevError = error; /**< the value of error at last cycle */
-    double derivative = error - prevError; /**< the change in error since last cycle */
-    double totalError = 0; /**< the total error since the start of the function */
-    double motorPower = 0; /**< the power to be sent to the drivetrain */
-    double prevMotorPower = 0; /**< the value of motorPower at last cycle */
-    double slew = 0; /**< the maximum change in velocity */
+    double prevError = error; /**< the value of error at last cycle                               */
+    double derivative = error - prevError; /**< the change in error since last cycle              */
+    double totalError = 0; /**< the total error since the start of the function                   */
+    double motorPower = 0; /**< the power to be sent to the drivetrain                            */
+    double prevMotorPower = 0; /**< the value of motorPower at last cycle                         */
+    double slew = 0; /**< the maximum change in velocity                                          */
 
     /**< main loop */
     for (int time = 0; time < maxTime; time+=10) {
@@ -569,58 +569,6 @@ void forwardVisionTracking(int sigID, pros::vision_signature_s_t* sig, double tu
     while (true) {
         /** get the tracked object data */
         pros::vision_object_s_t trackedSig = frontVision.get_by_sig(0, sigID);
-        
-        /** if the distance sensor senses the mogo */
-        error = 15 - trackedSig.x_middle_coord;
-
-        /** break out of the loop if necessary */
-        if (pros::millis() - startTime > timeout) {
-            break;
-        }
-        
-        /** calculate the power at which to spins the motors */
-        motorPower = error * turnKP;
-
-        /** spin the motors */
-        moveLeftDrivetrain(-motorPower);
-        moveRightDrivetrain(motorPower);
-
-        /** delay to prevent all resources from being used */
-        pros::delay(10);
-    }
-    /** stop all motors on the drivetrain */
-    stopDrivetrain();
-}
-
-
-/**
- * @brief function that aligns the robot with a tracked object
- * 
- * @param sigID signature ID number 
- * @param sig pointer to the signature
- * @param turnKP proportional
- * @param timeout timeout
- *
- */
-void backVisionTracking(int sigID, pros::vision_signature_s_t* sig, double turnKP, double timeout) 
-{
-    /** set the signature ID and signature object */
-    backVision.set_signature(sigID, sig);
-
-    /** set the zero point for the front vision sensor */
-    backVision.set_zero_point(pros::E_VISION_ZERO_CENTER);
-
-    /** initialize variables for turn PID */
-    double error = 0;
-    double motorPower = 0;
-
-    /** timestamp of when the function started */
-    double startTime = pros::millis();
-
-    /** main loop */
-    while (true) {
-        /** get the tracked object data */
-        pros::vision_object_s_t trackedSig = backVision.get_by_sig(0, sigID);
         
         /** if the distance sensor senses the mogo */
         error = 15 - trackedSig.x_middle_coord;
@@ -713,34 +661,40 @@ void basicForwardJPID(double goal, double kJ, double kP, double kI, double kD, d
     double startPos = sideTrackingWheel.get_value() * ((M_PI*2.75)/360); /**< the position of the tracking wheel, in inches, at the start of the function (cannot tare the value of the tracking wheel cuz odom) */
     double error = goal - sideTrackingWheel.get_value()*((M_PI*2.75)/360) + startPos; /**< calculate error                                                                                                       */
     double prevError = error; /**< the value of error at the last cycle                                                                                                                                          */
-    double derivative = error - prevError; /** the change in error since the last cycle                                                                                                                          */
-    double totalError = 0;
-    double slew = kJ;
-    double motorPower = error * kP + totalError * kI + derivative * kD;
-    double prevMotorPower = 0;
+    double derivative = error - prevError; /**< the change in error since the last cycle                                                                                                                         */
+    double totalError = 0; /**< total error                                                                                                                                                                      */
+    double slew = kJ; /**< maximum change in velocity                                                                                                                                                            */
+    double motorPower = error * kP + totalError * kI + derivative * kD; /**< the power at which to spin the motors                                                                                               */
+    double prevMotorPower = 0; /**< the power at which to spin the motors                                                                                                                                        */
 
+    /** main loop */
     for (int i = 0; i < maxTime; i+=10) {
+        
+        /** update variables */
+        error = goal - sideTrackingWheel.get_value()*((M_PI*2.75)/360) + startPos; /**< update error               */
+        derivative = error - prevError; /**< the change in error since the last cycle                              */
+        totalError += error; /**< update integral                                                                  */
+        slew += kJ; /**< update acceleration                                                                       */
+        motorPower = error*kP + totalError*kI + derivative * kD; /**< update the power at which to spin the motors */
 
-        error = goal - sideTrackingWheel.get_value()*((M_PI*2.75)/360) + startPos;
-        derivative = error - prevError;
-        totalError += error;
-        slew += kJ;
-        motorPower = error*kP + totalError*kI + derivative * kD;
-
+        /** decide whether to limit acceleration */
         if (motorPower - prevMotorPower > slew) {
             motorPower = prevMotorPower + slew;
         }
-        prevError = error;
+        prevError = error; /**< update the previous error */
 
-
+        /** decide whether to break out of the loop */
         if (fabs(error) < 0.1) {
             break;
         }
 
+        /** spin the motors */
         moveLeftDrivetrain(motorPower); 
         moveRightDrivetrain(motorPower);
 
+        /** delay so RTOS does not freeze */
         pros::delay(10);
     }
+    /** stop the drivetrain if it has not stopped already */
     stopDrivetrain();
 }
