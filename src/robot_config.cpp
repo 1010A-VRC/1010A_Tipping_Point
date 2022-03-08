@@ -51,8 +51,8 @@ pros::Motor conveyor (2, pros::E_MOTOR_GEARSET_06, false);
  */
 pros::IMU imu1 (11);
 pros::IMU imu2 (12);
-pros::Vision frontVision (1);
-pros::Distance frontDistance (7);
+pros::Vision frontVision (7);
+pros::Distance frontDistance (1);
 pros::Vision backVision (8);
 pros::Distance backDistance (19);
 pros::Rotation frontLiftRotation (4); 
@@ -69,9 +69,13 @@ pros::vision_signature_s_t front_red_mogo_alderfeild = pros::Vision::signature_f
 pros::vision_signature_s_t front_blue_mogo_alderfeild = pros::Vision::signature_from_utility (2, -2265, -1353, -1810, 6479, 9495, 7986, 3, 0); /**< blue mogo for the front vision sensor at the Alderfeild field    */
 pros::vision_signature_s_t front_yellow_mogo_alderfeild = pros::Vision::signature_from_utility(3, -1, 2079, 1038, -3665, -2527, -3096, 2.3, 0);
 
+pros::vision_signature_s_t f_y_mogo_ald_up = pros::Vision::signature_from_utility(2, 517, 1345, 932, -3231, -2349, -2790, 3, 0);
+
 pros::vision_signature_s_t f_r_mogo_sit = pros::Vision::signature_from_utility (3, 8039, 8605, 8322, -557, -267, -412, 6.1, 0); /**< red mogo for the front vision sensor at the Situation field       */
 pros::vision_signature_s_t f_b_mogo_sit = pros::Vision::signature_from_utility (2, -2225, -1591, -1908, 7679, 9543, 8610, 3, 0); /**< blue mogo for the front vision sensor at the Situation field     */
 pros::vision_signature_s_t f_y_mogo_sit = pros::Vision::signature_from_utility (1, 1773, 2725, 2250, -3247, -2969, -3108, 4.7, 0); /**< yellow mogo for the front vision sensor at the Situation field */
+
+pros::vision_signature_s_t f_y_mogo_board = pros::Vision::signature_from_utility (1, 1537, 2391, 1964, -4545, -4123, -4334, 3, 0);
 
 /**
  * @brief Back vision sensor signatures

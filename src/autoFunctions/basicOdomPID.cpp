@@ -206,8 +206,66 @@ void forwardJPIDfrontDistance(double goal, double expectedDistance, double clamp
         slew += kJ; /**< update acceleration                                                    */
         motorPower = error * kP + totalError * kI + derivative * kD; /**< calculate motor power */
 
-        /** break out of the loop if necessary */
-        if (fabs(error) < 40) {
+        // break out of the loop if necessary 
+        if (error < 40) {
+            break;
+        }
+
+        // slew
+        if (motorPower - prevMotorPower < -slew) {
+            motorPower = prevMotorPower - slew;
+        }
+        prevMotorPower = motorPower;
+
+        // spin the motors
+        moveLeftDrivetrain(-motorPower);
+        moveRightDrivetrain(-motorPower);
+
+        printf("error: %f \r\n", error);
+        
+        pros::delay(10);
+    }
+    stopDrivetrain();
+}
+
+
+// forward PID using front distance sensor
+void specialForwardJPIDfrontDistance(double goal, double expectedDistance, double clampOffset, double kJ, double kP, double kI, double kD, double maxTime) 
+{
+    double error = 0; // calculate the error
+    double prevError = expectedDistance; // the value of error at last cycle
+    double derivative = error - prevError; // the change in error since last cycle
+    double totalError = 0; // the total error since the start of the function
+    double motorPower = 0; // the power to be sent to the drivetrain
+    double prevMotorPower = 0; // the value of motorPower at last cycle
+    double slew = kJ; // the maximum change in velocity
+
+    double totalPower = 0;
+
+    for (double time = 0; time < maxTime; time+=10) {
+
+        // calculate stuff
+        if (time < clampOffset) {
+            error = -expectedDistance;
+        } else {
+            if (frontDistance.get() < 5) {
+                error = prevError;
+            } else {
+                error = goal - frontDistance.get(); // calculate error
+            }
+        }
+
+        totalPower += (l1.get_actual_velocity()+l2.get_actual_velocity())/2;
+        derivative = error - prevError; // calculate derivative
+        prevError = error; // update prevError
+        totalError += error; // calculate error
+        slew += kJ;
+        motorPower = error * kP + totalError * kI + derivative * kD; // calculate motor power
+
+        // break out of the loop if necessary
+        if (fabs(error) < 40 && time > 880) {
+            totalPower /= time/10;
+            pros::lcd::print(7, "average speed: %f", totalPower);
             break;
         }
 
@@ -505,15 +563,16 @@ void turnJPID(double goal, double kJ, double kP, double kI, double kD, double ma
  */
 void turnJPID2(double goal, double kJ, double kP, double kI, double kD, double maxTime) 
 {
-    double error = goal - (imu1.get_rotation() + imu2.get_rotation())/2; /**< calculate the error */
-    double prevError = error; /**< the value of error at last cycle                               */
-    double derivative = error - prevError; /**< the change in error since last cycle              */
-    double totalError = 0; /**< the total error since the start of the function                   */
-    double motorPower = 0; /**< the power to be sent to the drivetrain                            */
-    double prevMotorPower = 0; /**< the value of motorPower at last cycle                         */
-    double slew = 0; /**< the maximum change in velocity                                          */
+    double error = goal - (imu1.get_rotation() + imu2.get_rotation())/2; // calculate the error
+    double prevError = error; // the value of error at last cycle
+    double derivative = error - prevError; // the change in error since last cycle
+    double totalError = 0; // the total error since the start of the function
+    double motorPower = 0; // the power to be sent to the drivetrain
+    double prevMotorPower = 0; // the value of motorPower at last cycle
+    double slew = 0; // the maximum change in velocity
+    double recordedTime = 0;
+    bool stopLoop = false;
 
-    /**< main loop */
     for (int time = 0; time < maxTime; time+=10) {
 
         /** calculate variables */
@@ -524,9 +583,16 @@ void turnJPID2(double goal, double kJ, double kP, double kI, double kD, double m
         slew += kJ; /**< update acceleration                                                    */
         motorPower = error * kP + totalError * kI + derivative * kD; /**< calculate motor power */
 
-        /** break out of the loop if necessary */
-        if (fabs(error) < 1) {
-            break;
+        // break out of the loop if necessary
+        if (fabs(error) < 0.5 && !stopLoop) {
+            stopLoop = true;
+            recordedTime = time;
+        } else if (fabs(error) < 0.5 && stopLoop) {
+            if (time - recordedTime >= 50) {
+                break;
+            }
+        } else {
+            stopLoop = false;
         }
 
         /** spin the motors */
@@ -655,6 +721,7 @@ void back_vision_align(int sigID, pros::vision_signature_s_t* sig, double turnKP
  * @param maxTime timeout
  *
  */
+
 void basicForwardJPID(double goal, double kJ, double kP, double kI, double kD, double maxTime) 
 {
     /** variables */
@@ -696,5 +763,159 @@ void basicForwardJPID(double goal, double kJ, double kP, double kI, double kD, d
         pros::delay(10);
     }
     /** stop the drivetrain if it has not stopped already */
+    stopDrivetrain();
+}
+
+
+// function used to balance the robot
+void balance(double speed, double target, double timeOffset)
+{    
+    double kP = 11;
+    double kI = 0;
+    double kD = 0;
+
+    double error = target - (imu1.get_roll() + -imu2.get_roll())/2;
+    double prevError = error;
+    double derivative = 0;
+    double totalError = error;
+    double motorPower = 0;
+
+    while (true) {
+        error = target - (imu1.get_roll() + -imu2.get_roll())/2;
+        derivative = error - prevError;
+        prevError = error;
+        totalError += error;
+        motorPower = error*kP + totalError*kI + derivative*kD;
+        
+        if (error < 0) {
+            moveLeftDrivetrain(-motorPower);
+            moveRightDrivetrain(-motorPower);
+        } else {
+            stopDrivetrain();
+        }
+
+        pros::delay(10);
+    }
+}
+
+
+// vision tracking functions
+void forwardVisionTracking(int sigID, pros::vision_signature_s_t* sig, double turnGoal, double turnCutoffDistance, double turnKP, double turnKI, double turnKD, double forwardGoal, double forwardKP, double forwardKI, double forwardKD, double expectedDistance, double clampOffset, double timeout) 
+{
+    // set the signature ID and signature object
+    frontVision.set_signature(sigID, sig);
+    // set the zero point for the front vision sensor
+    frontVision.set_zero_point(pros::E_VISION_ZERO_CENTER);
+    // the object the vision sensor detected 
+    pros::vision_object_s_t trackedSig = frontVision.get_by_sig(0, sigID);
+
+    // initialize variables for forward PID
+    double forwardError = forwardGoal - expectedDistance;
+    double forwardPrevError = forwardError;
+    double forwardDerivative = forwardError - forwardPrevError;
+    double forwardTotalError = 0;
+    double forwardMotorPower = forwardError*forwardKP + forwardTotalError*forwardKI + forwardDerivative*forwardKD;
+
+    // initialize variables for turn PID
+    double turnError = turnGoal - trackedSig.x_middle_coord;
+    double turnPrevError = turnError;
+    double turnDerivative = turnError - turnPrevError;
+    double turnTotalError = 0;
+    double turnMotorPower = turnError*turnKP + turnTotalError*turnKI + turnDerivative*turnKD;
+
+    // main loop
+    for (int time = 0; time < timeout; time+=10) {
+
+        // update vision sensor tracked object
+        trackedSig = frontVision.get_by_sig(0, sigID);
+
+        // calculate forward PID variables
+        if (time < clampOffset) {
+            forwardError = expectedDistance;
+        } else if (frontDistance.get() != 0) {
+            forwardError = forwardGoal - -frontDistance.get();
+        }
+        forwardDerivative = forwardError - forwardPrevError;
+        forwardPrevError = forwardError;
+        forwardTotalError += forwardError; 
+        forwardMotorPower = forwardError*forwardKP + forwardTotalError*forwardKI + forwardDerivative*forwardKD;
+
+        // calculate turn PID variables
+        if (false) {
+            turnMotorPower = 0;
+        } else {
+            turnError = turnGoal - trackedSig.x_middle_coord;
+            turnDerivative = turnError - turnPrevError;
+            turnPrevError = turnError;
+            turnTotalError += turnError;
+            turnMotorPower = turnError*turnKP + turnTotalError*turnKI + turnDerivative*turnKD;
+        }
+
+        // move the drivetrain
+        moveRightDrivetrain(forwardMotorPower + turnMotorPower);
+        moveLeftDrivetrain(forwardMotorPower - turnMotorPower);
+
+        pros::lcd::print(7, "forward error: %f", forwardError);
+        
+        // delay so RTOS does not freak out
+        pros::delay(10);
+    }
+
+    stopDrivetrain();
+}
+
+
+// secondary function the align the robot using the vision sensor
+void frontVisionAlign2(int sigID, pros::vision_signature_s_t* sig, double goal, double range, double breakTime, double kP, double maxSpeed, double timeout) {
+
+    // set the signature ID and signature object
+    frontVision.set_signature(1, &f_y_mogo_ald_up);
+    // set the zero point for the front vision sensor
+    frontVision.set_zero_point(pros::E_VISION_ZERO_CENTER);
+    // the object the vision sensor detected 
+    pros::vision_object_s_t trackedSig = frontVision.get_by_sig(0, sigID);
+
+    // variables used for the PID
+    double error = 0;
+    double motorPower = error * kP;
+    double prevMotorPower = 0;
+    bool inRange = false;
+    double rangeStart = 0;
+
+    // main loop
+	for (int time = 0; time < timeout; time+=10) {
+        // update tracked object
+		trackedSig = frontVision.get_by_sig(0, sigID);
+
+        // calculate variables
+        error = goal - trackedSig.x_middle_coord;
+        motorPower = error * kP;
+
+        if (motorPower > maxSpeed) {
+            motorPower = maxSpeed;
+        } else if (motorPower < -maxSpeed) {
+            motorPower = -maxSpeed;
+        }
+
+        if (fabs(error) < range) {
+            if (inRange == false) {
+                inRange = true;
+                rangeStart = time;
+            } else if (time - rangeStart > breakTime) {
+                break;
+            }
+        } else {
+            inRange = false;
+        }
+
+
+        // spin the motors
+        moveLeftDrivetrain(-motorPower);
+        moveRightDrivetrain(motorPower);
+
+		pros::lcd::print(7, "error: %f", error);
+
+		pros::delay(10);
+	}
     stopDrivetrain();
 }

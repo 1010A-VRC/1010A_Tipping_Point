@@ -148,6 +148,7 @@ void turnJPID(double goal, double kJ, double kP, double kI, double kD, double ma
 void turnJPID2(double goal, double kJ, double kP, double kI, double kD, double maxTime);
 
 
+
 /**
  * @brief back vision align function
  * 
@@ -174,3 +175,10 @@ void back_vision_align(int sigID, pros::vision_signature_s_t* sig, double turnKP
  *
  */
 void basicForwardJPID(double goal, double kJ, double kP, double kI, double kD, double maxTime);
+
+
+void backVisionTracking(int sigID, pros::vision_signature_s_t* sig, double turnKP, double timeout);
+void balance(double speed, double target, double timeOffset);
+void forwardVisionTracking(int sigID, pros::vision_signature_s_t* sig, double turnGoal, double turnCutoffDistance, double turnKP, double turnKI, double turnKD, double forwardGoal, double forwardKP, double forwardKI, double forwardKD, double expectedDistance, double clampOffset, double timeout);
+void frontVisionAlign2(int sigID, pros::vision_signature_s_t* sig, double goal, double range, double breakTime, double kP, double maxSpeed, double timeout);
+void specialForwardJPIDfrontDistance(double goal, double expectedDistance, double clampOffset, double kJ, double kP, double kI, double kD, double maxTime);

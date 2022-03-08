@@ -13,14 +13,16 @@ void right3G(pros::vision_signature_s_t* yellowMogo, double yellowMogoID, pros::
     // deactivate the front clamp
     pros::Task lambdaTask1{[=] { frontClamp.set_value(true); }};
     // go forward 
-    forwardJPIDfrontDistance(10, 1400, 300, 100, 0.4, 0, 0, 870); // 0.22
+    specialForwardJPIDfrontDistance(10, 1400, 300, 127, 100, 0, 0, 1000); // 0.22
     // activate the clamp
     frontClamp.set_value(false);
+    moveLift(0, 0, 0, 0, 10);
 
     // lift the front mogo up to stop it from interacting with the rings
-    pros::Task lambdaTask2{[=] { moveLift(3000, 1, 0.000001, 0, 10000); }};
+    //pros::Task lambdaTask2{[=] { moveLift(3000, 1, 0.000001, 0, 10000); }};
     // go back
     backwardJPIDbackDistance(720, 1500, 0, 0.1, 0.22, 0, 0, 15000);
+    pros::Task lambdaTask2{[=] { moveLift(3000, 1, 0.000001, 0, 10000); }};
     // align with middle mogo
     turnJPID(130, 0.1, 0.91, 0, 0, 1500);
     // go back and clamp the middle mogo
