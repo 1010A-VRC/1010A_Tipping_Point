@@ -105,9 +105,9 @@ void competition_initialize ()
  */
 void autonomous () 
 {
-	//right3G(&front_red_mogo_alderfeild, 1, &front_red_mogo_alderfeild, 1);
+	right3G(&front_red_mogo_alderfeild, 1, &front_red_mogo_alderfeild, 1);
 	//left2G();
-	skillsAuto();
+	//skillsAuto();
 	//frontVisionAlign2(1, &f_y_mogo_ald_up, 0, 5, 250, 5, 40, 100000);
 	/*backClamp.set_value(true);
 	imu1.tare_roll();
