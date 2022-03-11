@@ -36,23 +36,23 @@ odometry odom(&sideTrackingWheel, false, 2.75, 1.5, &centerTrackingWheel, true, 
  */
 void initialize () 
 {
-	pros::lcd::initialize(); /**< initialize LLEMU  */
+	//pros::lcd::initialize(); /**< initialize LLEMU  */
 
-	imu1.reset();
-	imu2.reset();
+	//imu1.reset();
+	//imu2.reset();
 
-	odom.start_tracking(); /**< initialize odometry */
+	//odom.start_tracking(); /**< initialize odometry */
 
 	/** set all drivetrain motors to hold, in order to make accurate turns and not to slide off the ramp */
-	l1.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-	l2.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-	l3.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-	r1.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-	r2.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-	r3.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+	//l1.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+	//l2.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+	//l3.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+	//r1.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+	//r2.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+	//r3.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
 
 	/** create a task for the brain screen display */
-	pros::Task brainDisplay(brain_screen::legacy_brain_display);
+	pros::Task brainDisplay(brain_screen::brain_display);
 
 }
 
