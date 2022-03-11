@@ -229,43 +229,52 @@ void forwardJPIDfrontDistance(double goal, double expectedDistance, double clamp
 }
 
 
-// forward PID using front distance sensor
+/**
+ * @brief Function that goes forward by using the front distance sensor
+ * 
+ * @param goal the goal value of the distance sensor, how far away the tracked object is from the distance sensor
+ * @param expectedDistance the expected distance from the tracked object and the distance sensor at the start of the movement
+ * @param clampOffset how long the function needs to use expectedDistance as error at the start, to allow for the front clamp to go up
+ * @param kJ jerk parameter, controls the acceleration of the robot
+ * @param kP proportional parameter
+ * @param kI integral parameter
+ * @param kD derivative parameter
+ * @param maxTime timeout
+ *
+ */
 void specialForwardJPIDfrontDistance(double goal, double expectedDistance, double clampOffset, double kJ, double kP, double kI, double kD, double maxTime) 
 {
-    double error = 0; // calculate the error
-    double prevError = expectedDistance; // the value of error at last cycle
-    double derivative = error - prevError; // the change in error since last cycle
-    double totalError = 0; // the total error since the start of the function
-    double motorPower = 0; // the power to be sent to the drivetrain
-    double prevMotorPower = 0; // the value of motorPower at last cycle
-    double slew = kJ; // the maximum change in velocity
+    double error = 0; /**< calculate the error                                       */
+    double prevError = expectedDistance; /**< the value of error at last cycle       */
+    double derivative = error - prevError; /**< the change in error since last cycle */
+    double totalError = 0; /**< the total error since the start of the function      */
+    double motorPower = 0; /**< the power to be sent to the drivetrain               */
+    double prevMotorPower = 0; /**< the value of motorPower at last cycle            */
+    double slew = kJ; /**< the maximum change in velocity                            */
 
-    double totalPower = 0;
-
+    /** main loop */
     for (double time = 0; time < maxTime; time+=10) {
 
-        // calculate stuff
+        /** decide how to calculate error */
         if (time < clampOffset) {
-            error = -expectedDistance;
+            error = -expectedDistance; /**< if the clamp is still releasing */
         } else {
             if (frontDistance.get() < 5) {
-                error = prevError;
+                error = prevError; /**< if the reading is less than 5 mm (which is impossible), set the error to the previous error */
             } else {
-                error = goal - frontDistance.get(); // calculate error
+                error = goal - frontDistance.get(); /**< else calculate error normally */
             }
         }
 
-        totalPower += (l1.get_actual_velocity()+l2.get_actual_velocity())/2;
-        derivative = error - prevError; // calculate derivative
-        prevError = error; // update prevError
-        totalError += error; // calculate error
-        slew += kJ;
-        motorPower = error * kP + totalError * kI + derivative * kD; // calculate motor power
+        /** update variables */
+        derivative = error - prevError; /**< update derivative */
+        prevError = error; /**< update previous error                                                           */
+        totalError += error; /**< update total error                                                            */
+        slew += kJ; /**< update maximum acceleration                                                            */
+        motorPower = error * kP + totalError * kI + derivative * kD; /**< calculate power to spin the motors at */
 
         // break out of the loop if necessary
         if (fabs(error) < 40 && time > 880) {
-            totalPower /= time/10;
-            pros::lcd::print(7, "average speed: %f", totalPower);
             break;
         }
 
