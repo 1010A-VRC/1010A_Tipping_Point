@@ -1,0 +1,8 @@
+#ifndef LV_ATTRIBUTE_MEM_ALIGN
+#define LV_ATTRIBUTE_MEM_ALIGN
+#endif
+#ifndef LV_ATTRIBUTE_IMG_MAIN_TITLE_IMAGE
+#define LV_ATTRIBUTE_IMG_MAIN_TITLE_IMAGE
+#endif
+extern const LV_ATTRIBUTE_MEM_ALIGN LV_ATTRIBUTE_IMG_MAIN_TITLE_IMAGE uint8_t main_title_image_map[];
+extern const lv_img_dsc_t main_title_image;

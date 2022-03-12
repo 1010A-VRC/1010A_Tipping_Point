@@ -11,6 +11,7 @@
 
 #include "display/lv_core/lv_obj.h"
 #include "display/lv_core/lv_style.h"
+#include "display/lv_fonts/lv_font_builtin.h"
 #include "display/lv_misc/lv_color.h"
 #include "display/lv_objx/lv_btn.h"
 #include "display/lv_objx/lv_label.h"
@@ -18,6 +19,7 @@
 #include "robot_config.hpp"
 #include "autoFunctions/odometry.hpp"
 #include "brainDisplay.hpp"
+#include "images.h"
 
 
 /**
@@ -100,6 +102,15 @@ void brain_screen::brain_display()
     static lv_style_t main_title_style;
     lv_style_copy(&main_title_style, &lv_style_plain);
     main_title_style.text.color = LV_COLOR_RED;
+    main_title_style.text.font = &lv_font_dejavu_20;
     /** apply the style to the main title */
     lv_label_set_style(main_title, &main_title_style);
+
+    /** declare main title image */
+    LV_IMG_DECLARE(main_title_image);
+    lv_obj_t * main_title_img = lv_img_create(lv_scr_act(), NULL);
+    lv_img_set_src(main_title_img, &main_title_image);
+    lv_obj_align(main_title_img, NULL, LV_ALIGN_IN_TOP_LEFT, 20, 40);
+
+
 }
