@@ -9,7 +9,8 @@
  * 
  */
 
-#include "display/lv_misc/lv_anim.h"
+#include "display/lv_core/lv_obj.h"
+#include "display/lv_objx/lv_btn.h"
 #include "main.h"
 #include "robot_config.hpp"
 #include "autoFunctions/odometry.hpp"
@@ -74,6 +75,69 @@ void brain_screen::legacy_brain_display()
 
 
 /**
+ * @brief function that creates an animation
+ * 
+ * @param var Variable to animate
+ * @param start Start value
+ * @param end End value
+ * @param fp Function to be used to animate
+ * @param path Path of animation
+ * @param end_cb Callback when the animation is ready
+ * @param act_time Set < 0 to make a delay [ms]
+ * @param time Animation length [ms]
+ * @param playback 1: animate in reverse direction too when the normal is ready
+ * @param playback_pause Wait before playback [ms]
+ * @param repeat 1: Repeat the animation (with or without playback)
+ * @param repeat_pause Wait before repeat [ms]
+ * @return lv_anim_t 
+ */
+lv_anim_t lv_animation_creator(lv_obj_t * var, int32_t start, int32_t end, lv_anim_fp_t fp, lv_anim_path_t path, lv_anim_cb_t end_cb, int16_t act_time, uint16_t time, uint8_t playback, uint16_t playback_pause, uint8_t repeat, uint16_t repeat_pause) 
+{
+    /** create a new animation object */
+    lv_anim_t animation;
+
+    animation.var = var; /**< Variable to animate                                                    */
+    animation.start = start; /**< Start value                                                        */
+    animation.end = end; /**< End value                                                              */
+    animation.fp = fp; /**< Function to be used to animate                                           */
+    animation.path = path; /**< Path of animation                                                    */
+    animation.end_cb = end_cb; /**< Callback when the animation is ready                             */
+    animation.act_time = act_time; /**< Set < 0 to make a delay [ms]                                 */
+    animation.time = time; /**< Animation length [ms]                                                */
+    animation.playback = playback; /**< 1: animate in reverse direction too when the normal is ready */
+    animation.playback_pause = playback_pause; /**< Wait before playback [ms]                        */
+    animation.repeat = repeat; /**< 1: Repeat the animation (with or without playback)               */
+    animation.repeat_pause = repeat_pause; /**< Wait before repeat [ms]                              */
+
+    /** return the animation object */
+    return animation;
+}
+
+
+
+/** objects used by LVGL */
+lv_obj_t * wallpaper_img;
+lv_obj_t * main_title_img;
+lv_anim_t main_title_in;
+lv_anim_t main_title_out;
+lv_obj_t * auto_selector_btn;
+
+
+/** what to do when the autonomous selector button is pressed */
+static lv_res_t auto_selector_clicked(lv_obj_t * btn)
+{
+    /** make the main title go up */
+    lv_anim_create(&main_title_out);
+    lv_obj_del(auto_selector_btn);
+    pros::Task deleteMainTitleImg{[=] { while (lv_anim_count_running()) {pros::delay(100);} lv_obj_del(main_title_img); master.rumble("-");}};
+    
+
+    return LV_RES_OK; /*Return OK if the button is not deleted*/
+}
+
+
+
+/**
  * @brief function using LVGL, a more comprehensive graphics library
  * 
  */
@@ -83,34 +147,27 @@ void brain_screen::brain_display()
     lv_fs_drv_t pcfs_drv; /**< A driver descriptor                 */
     lvgl_filsystem_init(&pcfs_drv);
 
-    /** set the style used for the background */
-    static lv_style_t default_background;
-    /** parameters for the background */
-    lv_style_copy(&default_background, &lv_style_pretty_color);
-    default_background.body.main_color = LV_COLOR_MAKE(0, 0, 0);
-    default_background.body.grad_color = LV_COLOR_MAKE(0, 0, 0);
-    /** apply the parameters for the background */
-    lv_obj_set_style(lv_scr_act(), &default_background);
-    lv_obj_refresh_style(lv_scr_act());
+    /** create the background */
+    wallpaper_img = lv_img_create(NULL, NULL);
+    lv_img_set_src(wallpaper_img, "S:/usd/images/wallpaper.bin");
+    lv_scr_load(wallpaper_img);
 
     /** create the main title image */
-    lv_obj_t * main_title_img = lv_img_create(lv_scr_act(), NULL);
+    main_title_img = lv_img_create(lv_scr_act(), NULL);
     lv_img_set_src(main_title_img, "S:/usd/images/title.bin");
     lv_obj_align(main_title_img, NULL, LV_ALIGN_OUT_TOP_MID, 0, 0);
 
+    /** create animations for the main title */
+    main_title_in = lv_animation_creator(main_title_img, -50, 0, (lv_anim_fp_t)lv_obj_set_y, lv_anim_path_ease_out, NULL, 0, 300, 0, 0, 0, 0); /**< function that animates the main title to appear */
+    main_title_out = lv_animation_creator(main_title_img, 0, -50, (lv_anim_fp_t)lv_obj_set_y, lv_anim_path_ease_in, NULL, 0, 300, 0, 0, 0, 0); /**< function that animates the main title to appear */
+
     /** animate the main title */
-    lv_anim_t main_title_in_animation;
-    main_title_in_animation.var = main_title_img; /**< Variable to animate                                         */
-    main_title_in_animation.start = -40; /**< Start value                                                   */
-    main_title_in_animation.end = 0; /**< End value                                                       */
-    main_title_in_animation.fp = (lv_anim_fp_t)lv_obj_set_y; /**< Function to be used to animate       */
-    main_title_in_animation.path = lv_anim_path_ease_out; /**< Path of animation                              */
-    main_title_in_animation.end_cb = NULL; /**< Callback when the animation is ready                        */
-    main_title_in_animation.act_time = 0; /**< Set < 0 to make a delay [ms]                                 */
-    main_title_in_animation.time = 500; /**< Animation length [ms]                                          */
-    main_title_in_animation.playback = 0; /**< 1: animate in reverse direction too when the normal is ready */
-    main_title_in_animation.playback_pause = 0; /**< Wait before playback [ms]                              */
-    main_title_in_animation.repeat = 0; /**< 1: Repeat the animation (with or without playback)             */
-    main_title_in_animation.repeat_pause = 0; /**< Wait before repeat [ms]                                  */
-    lv_anim_create(&main_title_in_animation); /**< Start the animation                                      */
+    lv_anim_create(&main_title_in);
+
+    /** create a button that goes to the autonomous selector screen */
+    auto_selector_btn = lv_btn_create(lv_scr_act(), NULL);
+    lv_obj_align(auto_selector_btn, NULL, LV_ALIGN_IN_LEFT_MID, 0, 0);
+    lv_btn_set_action(auto_selector_btn, LV_BTN_ACTION_CLICK, auto_selector_clicked);
+    
+
 }
