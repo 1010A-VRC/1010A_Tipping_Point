@@ -21,6 +21,9 @@ using namespace pros;
  * @brief Method controlling the drivetrain
  * 
  */
+
+bool normalDrivetrain = true;
+
 void user_control::drivetrain_control() {
     
     /** variables */
@@ -42,11 +45,12 @@ void user_control::drivetrain_control() {
     double maxDecel = 3; /**< the maximum acceleration        */
 
     double turnAccel = 50; /**< acceleration multiplier when turning */
-
     double tempTurnAccel = 0;
-
+    bool aToggle = false;
+    
     /** main loop */
     while (true) {
+        while (normalDrivetrain) {
 
         /** decide whether to run single controller or dual controller */
   	    if (partnerController.is_connected()) {
@@ -114,8 +118,55 @@ void user_control::drivetrain_control() {
 
         /** delay so RTOS does not freeze */
         pros::delay(10);
+        }
+
+        while (!normalDrivetrain) {
+            double forwardPower = master.get_analog(E_CONTROLLER_ANALOG_LEFT_Y);
+            double turnPower = master.get_analog(E_CONTROLLER_ANALOG_RIGHT_X);
+
+            
+
+            double leftMotorPower = forwardPower + turnPower;
+            double rightMotorPower = forwardPower - turnPower;
+
+            if (!leftMotorPower && !rightMotorPower) {
+                leftMotorPower = (0 - (l1.get_position() + l2.get_position() + l3.get_position())/3) * 0.2;
+                rightMotorPower = (0 - (r1.get_position() + r2.get_position() + r3.get_position())/3) * 0.2;
+            } else {
+                l1.tare_position();
+                l2.tare_position();
+                l3.tare_position();
+                r1.tare_position();
+                r2.tare_position();
+                r3.tare_position();
+            }
+
+            l1.move(leftMotorPower);
+            l2.move(leftMotorPower);
+            l3.move(leftMotorPower);
+            r1.move(rightMotorPower);
+            r2.move(rightMotorPower);
+            r3.move(rightMotorPower); 
+        
+            pros::delay(10);
+        }
+        pros::delay(10);
     }
 }
+
+
+void user_control::driveToggle() {
+    while (true) {
+        if (partnerController.get_digital(E_CONTROLLER_DIGITAL_DOWN)) {
+            normalDrivetrain = !normalDrivetrain;
+            while (partnerController.get_digital(E_CONTROLLER_DIGITAL_DOWN)) {
+                pros::delay(10);
+            }
+        }
+        pros::delay(10);
+    }
+}
+
 
 
 /**
@@ -125,15 +176,14 @@ void user_control::drivetrain_control() {
 void user_control::front_lift_stop()
 {
     /** constants for the PID */
-    double kP = 0.02;
+    double kP = 0.5;
     double kI = 0.0;
     double kD = 0.0;
 
     /** variables for the PID */
-    int goal = frontLiftRotation.get_angle() + 500; // goal
-    if (goal > E_FRONT_LIFT_MAX) {
-        goal = E_FRONT_LIFT_MAX;
-    }
+    lift.tare_position();
+    double goal = 0;
+
     double motorSpeed;      /**< speed at which to move the lift motor                                          */
     double error;           /**< distance from the lift's current position and the target position              */
     double prevError = 0;   /**< previous distance from the lift's current position and the target position     */
@@ -144,7 +194,7 @@ void user_control::front_lift_stop()
     while((!master.get_digital(E_CONTROLLER_DIGITAL_L1)&&!master.get_digital(E_CONTROLLER_DIGITAL_L2)) || (master.get_digital(E_CONTROLLER_DIGITAL_L1)&&frontLiftRotation.get_angle()>=E_FRONT_LIFT_MAX-500) || (master.get_digital(E_CONTROLLER_DIGITAL_L2)&&frontLiftRotation.get_angle()<=E_FRONT_LIFT_HOME)) {
 
         /** update variables */
-        error = goal - frontLiftRotation.get_position();        /**< error              */
+        error = goal - lift.get_position();                     /**< error              */
         totalError += error;                                    /**< total error        */
         derivative = error - prevError;                         /**< derivative         */
         prevError = error;                                      /**< previous error     */
@@ -174,7 +224,12 @@ void user_control::front_lift_control()
 
         /** else if controller button L2 is pressed, move the front lift down */
         } else if (master.get_digital(E_CONTROLLER_DIGITAL_L2) && frontLiftRotation.get_angle() >= E_FRONT_LIFT_HOME) {
-            lift.move(std::numeric_limits<std::int32_t>::min()); /**< move the front lift down at maximum power */
+            if (frontLiftRotation.get_angle() < 500) {
+                lift.move(-20);
+            } else {
+                lift.move(std::numeric_limits<std::int32_t>::min()); /**< move the front lift down at maximum power */
+            }
+
 
         /** else hold the front lift at a positions */
         } else {
@@ -257,41 +312,41 @@ void user_control::conveyor_control()
     while (true) {
 
         /** if controller button B was pressed, toggle the conveyor */
-        if (partner->get_digital(E_CONTROLLER_DIGITAL_B)) {
+        if (partner->get_digital(E_CONTROLLER_DIGITAL_A)) {
 
             /** if the conveyor is not spinning forwards, spin it forwards */
-            if (conveyor.get_voltage() <= 0) {
+            if (conveyor.get_target_velocity() <= 0) {
                 /** move the conveyor forwards at maximum power */
                 conveyor.move(std::numeric_limits<std::int32_t>::max());
 
             /** else if the conveyor is spinning forwards, stop it */
-            } else if (conveyor.get_voltage() > 0) {
+            } else if (conveyor.get_target_velocity() > 0) {
                 /** stop the conveyor */
                 conveyor.move(0);
             }
 
             /** while button b is pressed, halt the function so the conveyor does not spasm */
-            while (partner->get_digital(E_CONTROLLER_DIGITAL_B)) {
+            while (partner->get_digital(E_CONTROLLER_DIGITAL_A)) {
                 delay(10);
             }
 
 
         /** else if button X was pressed, toggle the conveyor */
-        } else if (partner->get_digital(E_CONTROLLER_DIGITAL_A)) {
+        } else if (partner->get_digital(E_CONTROLLER_DIGITAL_B)) {
 
             /** if the conveyor is not spinning backwards, spin it backwards */
-            if (conveyor.get_voltage() >= 0) {
+            if (conveyor.get_target_velocity() >= 0) {
                 /** move the conveyor backwards at maximum power */
                 conveyor.move(std::numeric_limits<std::int32_t>::min());
 
             /** else if the conveyor is spinning backwards, stop it */
-            } else if (conveyor.get_voltage() < 0) {
+            } else if (conveyor.get_target_velocity() < 0) {
                 /** stop the conveyor  */
                 conveyor.move(0);
             }
 
             /** while button X is pressed, halt the function so the conveyor does not spasm */
-            while (partner->get_digital(E_CONTROLLER_DIGITAL_A)) {
+            while (partner->get_digital(E_CONTROLLER_DIGITAL_B)) {
                 delay(10);
             }
         }

@@ -23,6 +23,7 @@ class user_control {
         static void front_clamp_control();      /**< Method controlling the front clamp             */
         static void back_clamp_control();       /**< Method controlling the back clamp              */
         static void conveyor_control();         /**< Method controllinf the conveyor                */
+        static void driveToggle();
 
     private:
         static void front_lift_stop();          /**< Method using a PID */

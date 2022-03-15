@@ -24,6 +24,7 @@ class brain_screen {
 
     private:
         static double average_temperature(pros::Motor *a, pros::Motor *b, pros::Motor *c);
+        static double average_wattage(pros::Motor *a, pros::Motor *b, pros::Motor *c);
 
 
 };
