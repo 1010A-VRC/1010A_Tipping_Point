@@ -52,7 +52,7 @@ void initialize ()
 	//r3.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
 
 	/** create a task for the brain screen display */
-	pros::Task brainDisplay(brain_screen::brain_display);
+	//pros::Task brainDisplay(brain_screen::brain_display);
 
 }
 

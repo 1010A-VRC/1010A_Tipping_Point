@@ -121,6 +121,8 @@ lv_obj_t * main_title_img;
 lv_anim_t main_title_in;
 lv_anim_t main_title_out;
 lv_obj_t * auto_selector_btn;
+lv_obj_t * debug_btn;
+lv_obj_t * settings_btn;
 
 
 /** what to do when the autonomous selector button is pressed */
@@ -129,6 +131,38 @@ static lv_res_t auto_selector_clicked(lv_obj_t * btn)
     /** make the main title go up */
     lv_anim_create(&main_title_out);
     lv_obj_del(auto_selector_btn);
+    lv_obj_del(debug_btn);
+    lv_obj_del(settings_btn);
+    pros::Task deleteMainTitleImg{[=] { while (lv_anim_count_running()) {pros::delay(100);} lv_obj_del(main_title_img); master.rumble("-");}};
+    
+
+    return LV_RES_OK; /*Return OK if the button is not deleted*/
+}
+
+
+/** what to do when the autonomous selector button is pressed */
+static lv_res_t debug_clicked(lv_obj_t * btn)
+{
+    /** make the main title go up */
+    lv_anim_create(&main_title_out);
+    lv_obj_del(auto_selector_btn);
+    lv_obj_del(debug_btn);
+    lv_obj_del(settings_btn);
+    pros::Task deleteMainTitleImg{[=] { while (lv_anim_count_running()) {pros::delay(100);} lv_obj_del(main_title_img); master.rumble("-");}};
+    
+
+    return LV_RES_OK; /*Return OK if the button is not deleted*/
+}
+
+
+/** what to do when the autonomous selector button is pressed */
+static lv_res_t settings_clicked(lv_obj_t * btn)
+{
+    /** make the main title go up */
+    lv_anim_create(&main_title_out);
+    lv_obj_del(auto_selector_btn);
+    lv_obj_del(debug_btn);
+    lv_obj_del(settings_btn);
     pros::Task deleteMainTitleImg{[=] { while (lv_anim_count_running()) {pros::delay(100);} lv_obj_del(main_title_img); master.rumble("-");}};
     
 
@@ -163,11 +197,29 @@ void brain_screen::brain_display()
 
     /** animate the main title */
     lv_anim_create(&main_title_in);
+    pros::delay(1000);
 
     /** create a button that goes to the autonomous selector screen */
-    auto_selector_btn = lv_btn_create(lv_scr_act(), NULL);
+    auto_selector_btn = lv_imgbtn_create(lv_scr_act(), NULL);
+    lv_imgbtn_set_src(auto_selector_btn, LV_BTN_STATE_REL, "S:/usd/images/autoREL.bin");
+    lv_imgbtn_set_src(auto_selector_btn, LV_BTN_STATE_PR, "S:/usd/images/autoPR.bin");
     lv_obj_align(auto_selector_btn, NULL, LV_ALIGN_IN_LEFT_MID, 0, 0);
-    lv_btn_set_action(auto_selector_btn, LV_BTN_ACTION_CLICK, auto_selector_clicked);
+    lv_imgbtn_set_action(auto_selector_btn, LV_BTN_ACTION_CLICK, auto_selector_clicked);
+
+    /** create a button that goes to the autonomous selector screen */
+    debug_btn = lv_imgbtn_create(lv_scr_act(), NULL);
+    lv_imgbtn_set_src(debug_btn, LV_BTN_STATE_REL, "S:/usd/images/debugREL.bin");
+    lv_imgbtn_set_src(debug_btn, LV_BTN_STATE_PR, "S:/usd/images/debugPR.bin");
+    lv_obj_align(debug_btn, NULL, LV_ALIGN_CENTER, 0, 0);
+    lv_imgbtn_set_action(debug_btn, LV_BTN_ACTION_CLICK, debug_clicked);
+
+    /** create a button that goes to the autonomous selector screen */
+    settings_btn = lv_imgbtn_create(lv_scr_act(), NULL);
+    lv_imgbtn_set_src(settings_btn, LV_BTN_STATE_REL, "S:/usd/images/settingsREL.bin");
+    lv_imgbtn_set_src(settings_btn, LV_BTN_STATE_PR, "S:/usd/images/settingsPR.bin");
+    lv_obj_align(settings_btn, NULL, LV_ALIGN_IN_RIGHT_MID, 0, 0);
+    lv_imgbtn_set_action(settings_btn, LV_BTN_ACTION_CLICK, settings_clicked);
+    
     
 
 }

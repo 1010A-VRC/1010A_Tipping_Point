@@ -32,14 +32,14 @@ pros::Controller partnerController(pros::E_CONTROLLER_PARTNER);
  * 1 motor is used for a conveyor
  * 
  */
-pros::Motor l1 (18, pros::E_MOTOR_GEARSET_18, true); 
-pros::Motor l2 (14, pros::E_MOTOR_GEARSET_18, false); 
-pros::Motor l3 (13, pros::E_MOTOR_GEARSET_18, true);  
-pros::Motor r1 (20, pros::E_MOTOR_GEARSET_18, false); 
-pros::Motor r2 (16, pros::E_MOTOR_GEARSET_18, true); 
-pros::Motor r3 (21, pros::E_MOTOR_GEARSET_18, false); 
-pros::Motor lift (3, pros::E_MOTOR_GEARSET_36, false);
-pros::Motor conveyor (2, pros::E_MOTOR_GEARSET_06, false);
+pros::Motor l1 (14, pros::E_MOTOR_GEARSET_18, true); 
+pros::Motor l2 (13, pros::E_MOTOR_GEARSET_18, false); 
+pros::Motor l3 (12, pros::E_MOTOR_GEARSET_18, true);  
+pros::Motor r1 (7, pros::E_MOTOR_GEARSET_18, false); 
+pros::Motor r2 (8, pros::E_MOTOR_GEARSET_18, true); 
+pros::Motor r3 (5, pros::E_MOTOR_GEARSET_18, false); 
+pros::Motor lift (4, pros::E_MOTOR_GEARSET_36, false);
+pros::Motor conveyor (11, pros::E_MOTOR_GEARSET_06, false);
 
 /**
  * @brief V5 sensors
@@ -49,13 +49,13 @@ pros::Motor conveyor (2, pros::E_MOTOR_GEARSET_06, false);
  * 1 rotation sensor
  * 
  */
-pros::IMU imu1 (11);
-pros::IMU imu2 (12);
-pros::Vision frontVision (7);
+pros::IMU imu1 (10);
+pros::IMU imu2 (15);
+pros::Vision frontVision (1);
 pros::Distance frontDistance (1);
-pros::Vision backVision (8);
-pros::Distance backDistance (19);
-pros::Rotation frontLiftRotation (4); 
+pros::Vision backVision (1);
+pros::Distance backDistance (1);
+pros::Rotation frontLiftRotation (9); 
 
 /**
  * @brief Front vision sensor signatures
