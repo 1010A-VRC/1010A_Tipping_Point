@@ -18,15 +18,13 @@
 class user_control {
 
     public:
-        static void drivetrain_control();       /**< Method controlling the drivetrain              */
-        static void front_lift_control();       /**< Method controlling the front lift              */
-        static void front_clamp_control();      /**< Method controlling the front clamp             */
-        static void back_clamp_control();       /**< Method controlling the back clamp              */
-        static void conveyor_control();         /**< Method controllinf the conveyor                */
-        static void driveToggle();
+        void op_control();
 
     private:
-        static void front_lift_stop();          /**< Method using a PID */
+        std::uint8_t move_left_drive(std::int32_t voltage);
+        std::uint8_t move_right_drive(std::int32_t voltage);
+        double calculate_expo(double base, double coefficient, double exponent);
+
 
 
 };
